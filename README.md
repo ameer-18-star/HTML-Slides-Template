@@ -90,9 +90,6 @@ Are you trying to automate your company's presentation creation workflow? Or per
 Let's turn your ideas into functional, beautiful web-based presentations!
 
 * **GitHub Issues:** Open an issue right here in this repository to suggest improvements or report bugs.
-* **Email:** [your-email@example.com] *(Replace with your actual email)*
-* **LinkedIn:** [Your Name / Profile Link] *(Replace with your LinkedIn)*
-* **Schedule a Call:** [Link to Calendly or similar] *(Replace with your booking link)*
 
 ---
 *If you find this repository helpful, please give it a ⭐ to support the project!*
