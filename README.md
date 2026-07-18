@@ -14,56 +14,63 @@ Whether you are using the **Claude Web Interface** or the CLI-based **Claude Cod
 * **`skills/`**: Contains core JSON-based skill files that you import into Claude to teach it how to design slides following universal design principles.
 * **`Reference Files (Required)/`**: Reference templates to help define your custom layout, container shapes, and base structures.
 * **`HTML Slides (Required Skill Files)/`**: Code snippets and components to deepen Claude's understanding of slide structures, animations, and bento grids.
-* **`VMSOIT-Slide-Generator-Prompt.md`**: The master prompt file containing strict instructions, color codes, and structures to feed into Claude.
+* **`VMSOIT-Slide-Generator-Prompt.md`**: The master prompt file containing strict instructions, color codes, layouts, and structures to feed into Claude.
 
 ---
 
 ### 🛠️ Step-by-Step Creation Process
 
-#### Step 1: Initialize Your Design System & Skills
-1. **Prepare Your Brand Assets**: Identify your primary colors (Hex codes), custom fonts, and logo SVG or PNG assets.
-2. **If using Claude Web Interface**: 
-   * Navigate to the `important skills` folder in this repo.
-   * Upload/import these skill files into Claude's system prompt or custom instructions as a "Skill".
-3. **If using Claude Code**:
-   * Run Claude Code within your IDE (e.g., Cursor or Anti-gravity).
-   * Install the standard skill framework directly by passing the Git URLs of pre-built slide frameworks:
+#### Step 1: Establish Your Brand Design System (Quick Method)
+To make your slides truly unique, you need a cohesive design template that reflects your brand identity (typography, primary/secondary colors, spacing tokens, and logos). 
+* **The Fastest Method:** You can use **Google Pomelli**. It is one of the best tools to spin up a complete brand design template in a fraction of the time. Simply feed your brand's live website URL into Google Pomelli, and it will instantly extract a complete brand design template equipped with every detail you need for your slides.
+
+#### Step 2: Initialize Your Skills in Claude
+1. **If using the Claude Web Interface**: 
+   * Navigate to the `important skills` folder in this repository.
+   * Upload or copy/paste these skill files into Claude's custom instructions or project knowledge base to establish the design constraints.
+2. **If using Claude Code (CLI/IDE)**:
+   * Run Claude Code directly inside your development workspace (e.g., Cursor, Anti-gravity, or your terminal).
+   * Install the standard slide layout skill framework by linking Claude Code directly to these premier community libraries:
      * [ECC Frontend Slides](https://github.com/affaan-m/ECC/tree/main/skills/frontend-slides)
      * [Beautiful HTML Templates](https://github.com/zarazhangrui/beautiful-html-templates)
      * [UI/UX Pro Max Skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
      * [Frontend Slides Framework](https://github.com/zarazhangrui/frontend-slides)
 
-#### Step 2: Configure the Slide Generator Prompt
-* Open `VMSOIT-Slide-Generator-Prompt.md`.
-* Tweak the variables (fonts, colors, background styles, and logo placeholders) to match your company's official brand book.
-* *Note: If this template is already perfect for your needs, simply update the CSS hex colors and swap the logo paths in the code!*
+#### Step 3: Configure the Master Prompt Template
+* Open the `VMSOIT-Slide-Generator-Prompt.md` file.
+* Tweak the core variables (Hex color codes, global fonts, background patterns, and logo files) to match the brand book details you gathered in Step 1.
+* *Note: If this template's base styling is already perfect for your needs, you can simply change the font colors and point the image tags to your own logo assets!*
 
-#### Step 3: Generate the Slides
+#### Step 4: Generate the Slides
 
-Depending on your setup, follow one of the two methods:
+Depending on your daily workflow preferences, choose one of the two generation approaches:
 
-##### Method A: Using Claude Web Interface (1-by-1 Approach)
-1. Provide Claude with the `VMSOIT-Slide-Generator-Prompt.md` instructions and your outline structure.
-2. Ask Claude to generate your slides **one-by-one**. 
-   * *Tip:* Ask Claude to output **only the core HTML/CSS component code** for new slides, rather than rewriting the entire wrapper file every time.
-3. Once all slide blocks are written, manually merge them inside the container class of your main HTML index file.
+##### Method A: Using Claude Web Interface (1-by-1 Interactive Flow)
+1. Provide Claude with the updated text instructions inside `VMSOIT-Slide-Generator-Prompt.md` along with your presentation outline.
+2. Direct Claude to generate your slides **one-by-one**. 
+   * *Crucial Prompting Tip:* Ask Claude to output **only the component code blocks** for new slides rather than rewriting the full HTML wrapper structure every time.
+3. Manually copy and merge the resulting slide sections into the main container class of your primary presentation HTML file.
 
-##### Method B: Using Claude Code (All-at-Once Automation)
-1. Run a local development environment.
-2. Ask Claude Code to analyze your target website (or brand guidelines) and programmatically compile the entire slide deck layout at once.
-3. Use the terminal or local server to instantly preview the slides, adjusting variables on the fly.
+##### Method B: Using Claude Code (Automated All-at-Once Flow)
+1. Initialize Claude Code inside your local repository folder.
+2. Direct Claude to pull structural layout principles from the repository assets and programmatically compile the entire slide presentation in a single pass.
+3. Spin up a local server to instantly preview the animations, spacing ratios, and responsive layouts on the fly.
 
 ---
 
-## 🐍 Pro Tip: Scalable Slide Production with Python 
+## 🐍 Automation & Compilation Frameworks
 
-If manual merging or direct prompting isn't scalable for your workflow, you can automate this using Python! 
+### 1. Dynamic JSON-to-HTML Parsing (Python Option)
+If manual copying or constant prompting becomes tedious, you can build a light automation script:
+* Design a Python script that takes a structured **`data.json`** file containing slide text, headings, list points, and image links.
+* The script reads your brand-aligned master template base and loops through the JSON keys, programmatically stamping the content directly into clean HTML structures.
 
-1. Write a Python script that takes a structured **`data.json`** file containing slide text, bullet points, and image URLs.
-2. Have the script parse the JSON data and programmatically inject the content directly into your brand's HTML slide template wrappers.
-3. Output a perfectly formatted, multi-slide single HTML presentation file in seconds.
+> **Direct Prompting Alternative:** If you prefer not to manage a local Python setup, simply upload your empty, styled HTML template directly into a Claude thread, provide raw text data (reports, transcripts, drafts), and prompt: *"Convert this data into presentation slides using the layout design principles embedded in this template."* Claude will cleanly generate ready-to-run slide code populated with your content.
 
-> **Simplistic Alternative:** If Python isn't your strong suit, you can simply upload this finished HTML template to Claude, provide raw text data (reports, notes, transcripts), and prompt: *"Convert this data into slides using the layout design principles of this template."* It will fill out the content dynamically!
+### ⚠️ Important Warning Regarding PDF Exports
+> [!WARNING]
+> If you plan to use a Python script (such as Playwright, Selenium, or WeasyPrint) to programmatically convert your final HTML slides into a downloadable PDF format, keep in mind that **the generated PDF document will not look perfect due to active animations and interactive transitions**. 
+> For the best clean static document result, you will need to apply a utility print style sheet (`@media print`) that suppresses CSS transitions, pauses keyframe loops, and displays all content blocks flat on the page layout before running the export script.
 
 ---
 
@@ -90,6 +97,7 @@ Are you trying to automate your company's presentation creation workflow? Or per
 Let's turn your ideas into functional, beautiful web-based presentations!
 
 * **GitHub Issues:** Open an issue right here in this repository to suggest improvements or report bugs.
+* **Contact:** [https://docs.google.com/forms/d/e/1FAIpQLSfFlNRMuvdiwHLbjGfhOyMmkXyC5t6ri34_jxiHhGWixAJyFQ/viewform?usp=publish-editor]
 
 ---
 *If you find this repository helpful, please give it a ⭐ to support the project!*
