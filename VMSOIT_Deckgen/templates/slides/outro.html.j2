@@ -1,0 +1,39 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide outro-slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    <p class="outro-channel reveal">
+      <span>{{ channel_name }}</span> &nbsp;&middot;&nbsp; {{ tagline }}
+    </p>
+
+    <div class="outro-center reveal">
+      <div class="outro-subscribe">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#ffffff">
+          <path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z" />
+        </svg>
+        Subscribe
+      </div>
+      <p class="outro-hint">{{ hint }}</p>
+    </div>
+
+    {% if next_videos %}
+    <div class="outro-cards">
+      {% for video in next_videos %}
+      <div class="outro-video-card">
+        <div class="outro-thumb">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+            <path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z" />
+          </svg>
+        </div>
+        <div class="outro-card-info">
+          <div class="outro-card-tag">{{ video.tag }}</div>
+          <div class="outro-card-title">{{ video.title }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>

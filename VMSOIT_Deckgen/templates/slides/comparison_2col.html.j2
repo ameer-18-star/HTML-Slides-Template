@@ -1,0 +1,51 @@
+{% import "slides/_macros.html.j2" as m %}
+{% set colors = {"yellow": "#FFF600", "red": "#D7263D", "neutral": "#9A9A9A", "center": "#FFF600"} %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <div class="cmp2-layout">
+
+      <div class="cmp-card col-{{ left.style }} from-left">
+        <div class="cmp-head">
+          {% if left.style == "red" %}{{ m.icon_x(colors[left.style]) }}{% else %}{{ m.icon_check(colors[left.style]) }}{% endif %}
+          {{ left.heading }}
+        </div>
+        <div class="cmp-body">
+          <ul>
+            {% for point in left.points %}
+            <li>
+              {{ m.chevron(color=colors[left.style], width="4", class="") }}
+              <span>{{ point }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="cmp-card col-{{ right.style }} from-right">
+        <div class="cmp-head">
+          {% if right.style == "red" %}{{ m.icon_x(colors[right.style]) }}{% else %}{{ m.icon_check(colors[right.style]) }}{% endif %}
+          {{ right.heading }}
+        </div>
+        <div class="cmp-body">
+          <ul>
+            {% for point in right.points %}
+            <li>
+              {{ m.chevron(color=colors[right.style], width="4", class="") }}
+              <span>{{ point }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

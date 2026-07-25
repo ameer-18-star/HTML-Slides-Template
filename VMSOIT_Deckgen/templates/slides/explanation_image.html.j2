@@ -1,0 +1,34 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <div class="expl-img-layout">
+
+      <div class="expl-img-left reveal">
+        <h2 class="ei-title">{{ title }}</h2>
+        {% for para in paragraphs %}
+        <p class="ei-para">{{ para }}</p>
+        {% endfor %}
+      </div>
+
+      <div>
+        <div class="img-box">
+          {% if image_src %}
+          <img src="{{ image_src }}" alt="{{ image_alt }}" />
+          {% else %}
+          <div class="img-placeholder">&#128247; Replace with an image</div>
+          {% endif %}
+        </div>
+        {% if image_caption %}
+        <p class="img-caption">{{ image_caption }}</p>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

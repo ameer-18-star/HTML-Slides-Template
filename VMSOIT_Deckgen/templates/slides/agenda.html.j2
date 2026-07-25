@@ -1,0 +1,37 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <div class="agenda-layout">
+
+      <div>
+        {% for item in items %}
+        <div class="agenda-item">
+          <span class="agenda-num">{{ "%02d"|format(loop.index) }}</span>
+          <div>
+            <div class="agenda-title">{{ item.title }}</div>
+            <div class="agenda-sub">{{ item.sub }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="agenda-deco reveal">
+        {% for card in deco_cards %}
+        <div class="agenda-deco-card {{ 'dc-accent cut' if loop.first else 'cut' }}">
+          <div class="dc-tag">{{ card.tag }}</div>
+          <div class="dc-val">{{ card.val }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

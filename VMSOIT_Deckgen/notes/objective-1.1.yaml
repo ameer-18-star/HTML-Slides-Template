@@ -1,0 +1,401 @@
+# ============================================================
+# notes/objective-1.1.yaml
+# CompTIA A+ Core 1 (220-1201) — Domain 1: Mobile Devices
+# One entry per slide type (23 total) so this file doubles as both
+# real study content AND a working example of every schema in schema.py.
+#
+# Field names here match the Pydantic models in engine/schema.py exactly.
+# Swap the content per objective; keep the `type:` values and field
+# shapes the same and this will render against any objective.
+# ============================================================
+
+meta:
+  objective: "Objective 1.1"
+  subtitle: "Install and Configure Laptop Hardware and Components"
+  domain: "Domain 1: Mobile Devices"
+  section: "Mobile Device Hardware"
+
+slides:
+
+  # 1 — title -------------------------------------------------
+  - type: title
+    eyebrow: "CompTIA A+ Core 1 · 220-1201 (V15)"
+    heading: "Mobile Device Hardware"
+    subtitle: "Objective 1.1 — Install and Configure Laptop Hardware and Components"
+    tagline: "Connectors, batteries, storage, and displays — the physical building blocks of every mobile device."
+
+  # 2 — agenda --------------------------------------------------
+  - type: agenda
+    eyebrow: "Agenda"
+    title: "What We'll Cover"
+    items:
+      - title: "Connection Methods"
+        sub: "Wired and wireless ways mobile devices link to peripherals"
+      - title: "Mobile Device Accessories"
+        sub: "Headsets, speakers, controllers, and drawing pads"
+      - title: "Battery Replacement"
+        sub: "Safe removal and replacement procedure, step by step"
+      - title: "SIM Cards & Storage"
+        sub: "Physical SIM sizes, eSIM, and mobile storage expansion"
+      - title: "Displays"
+        sub: "LCD vs OLED panel technology and digitizers"
+    deco_cards:
+      - tag: "Topics"
+        val: "5"
+      - tag: "Est. Time"
+        val: "25 min"
+      - tag: "Exam Weight"
+        val: "High"
+
+  # 3 — topic_list ----------------------------------------------
+  - type: topic_list
+    eyebrow: "Exam Objectives"
+    title: "What This Objective Covers"
+    items:
+      - "USB-A, USB-C, and USB4 connector standards and speeds"
+      - "Bluetooth and NFC wireless pairing methods"
+      - "Lightning and proprietary charging connectors"
+      - "Battery types, safety, and replacement procedure"
+      - "Standard SIM, microSIM, nanoSIM, and eSIM"
+      - "MicroSD and expandable mobile storage"
+      - "LCD, OLED, and AMOLED display technology"
+      - "Digitizers and touchscreen replacement"
+      - "Mobile device accessories and peripherals"
+      - "Docking stations and port replicators"
+
+  # 4 — major_heading --------------------------------------------
+  - type: major_heading
+    eyebrow: "Section 01"
+    section_number: "01"
+    title: "Connection Methods"
+    paragraphs:
+      - "Mobile devices communicate with peripherals and networks through both wired and wireless connection methods."
+      - "Knowing the speed, range, and use case of each method is a common source of exam scenario questions."
+    big_num: "01"
+    big_label: "Section"
+
+  # 5 — section_heading --------------------------------------------
+  - type: section_heading
+    eyebrow: "Section 01"
+    ghost_number: "01"
+    title: "Wired vs Wireless"
+    paragraphs:
+      - "Wired connections (USB, proprietary chargers) offer the fastest, most reliable data transfer and charging."
+      - "Wireless connections (Bluetooth, NFC, Wi-Fi) trade some speed and reliability for convenience and range."
+    meta:
+      - label: "Slides in Section"
+        val: "5"
+      - label: "Focus"
+        val: "Connectors"
+      - label: "Exam Weight"
+        val: "High"
+
+  # 6 — minor_heading --------------------------------------------
+  - type: minor_heading
+    eyebrow: "1.1.1"
+    title: "USB Standards"
+    paragraphs:
+      - "USB is the dominant standard for both charging and data transfer on modern mobile devices."
+      - "Connector shape (Type-A, Type-C) is independent of the underlying USB version and its data speed."
+    key_points:
+      - "USB-C is reversible and supports higher power delivery (up to 240W with USB PD 3.1)"
+      - "USB4 runs over a USB-C connector and can reach 40 Gbps"
+      - "USB 3.2 Gen 2x2 reaches 20 Gbps over USB-C"
+      - "Connector shape does not guarantee a specific USB version"
+
+  # 7 — bullet_list --------------------------------------------
+  - type: bullet_list
+    eyebrow: "Connectors"
+    title: "USB Connector Types"
+    items:
+      - label: "USB-A"
+        sub: "Standard rectangular connector, not reversible, found on older chargers and hubs"
+      - label: "USB-C"
+        sub: "Reversible oval connector, supports high-speed data and up to 240W power delivery"
+      - label: "Micro-USB"
+        sub: "Legacy small connector, still found on budget accessories and some older Android devices"
+      - label: "Lightning"
+        sub: "Apple's proprietary 8-pin connector used on iPhone and iPad prior to USB-C adoption"
+
+  # 8 — numbered_list --------------------------------------------
+  - type: numbered_list
+    eyebrow: "Procedure"
+    title: "Mobile Battery Replacement"
+    steps:
+      - title: "Power Off the Device Completely"
+        desc: "Never work on a battery while the device is powered on or charging."
+      - title: "Remove the Back Cover"
+        desc: "Use a plastic pry tool or suction cup — never a metal screwdriver. Heat may be needed on glued assemblies."
+      - title: "Disconnect the Battery Connector"
+        desc: "Lift the ZIF connector tab straight up. Never pull by the cable ribbon — always disconnect from the socket end."
+      - title: "Remove and Replace the Battery"
+        desc: "Use a plastic spudger to lift the battery. Insert the replacement, reconnect the connector, and press firmly to seat it."
+      - title: "Reassemble and Test"
+        desc: "Reattach the back cover, power on the device, and verify the battery charges and reports the correct capacity."
+
+  # 9 — unord_pop --------------------------------------------
+  - type: unord_pop
+    eyebrow: "Mobile Accessories"
+    title: "Common Accessories — Click to Expand"
+    items:
+      - title: "Headsets & Earbuds"
+        desc: "Wired (3.5 mm / USB-C) and wireless (Bluetooth) audio accessories"
+        detail: "Wired headsets connect via the 3.5 mm audio jack or USB-C. Wireless earbuds use Bluetooth pairing. Exam tip: USB-C headsets require no audio jack and can carry digital audio — the device handles D/A conversion, not the headset."
+      - title: "Speakers"
+        desc: "Portable speakers connect via Bluetooth or 3.5 mm audio jack"
+        detail: "Bluetooth speakers pair once and reconnect automatically. 3.5 mm speakers require no pairing but are limited by cable length. Exam tip: Bluetooth uses the ISM 2.4 GHz band and can experience interference from Wi-Fi on the same frequency."
+      - title: "Game Controllers"
+        desc: "Bluetooth or USB-C controllers for mobile gaming on phones and tablets"
+        detail: "Mobile game controllers clip around the phone or connect via Bluetooth. Some connect through USB-C for zero-latency input. Exam tip: these are standard HID (Human Interface Device) class devices — no special driver is needed on modern mobile OSes."
+      - title: "Drawing Pads"
+        desc: "Stylus-based input pads for digital art and note-taking on tablets"
+        detail: "Drawing pads use electromagnetic resonance (EMR) or capacitive stylus technology. EMR styli require no battery — the pad sends power to the pen. Active stylus types (like Apple Pencil) do require charging. Exam tip: EMR pads do not respond to finger touch — stylus only."
+
+  # 10 — explanation_text --------------------------------------
+  - type: explanation_text
+    eyebrow: "Concept"
+    title: "What Is eSIM?"
+    paragraphs:
+      - "An eSIM (embedded SIM) is a carrier profile provisioned directly onto a chip soldered to the device's motherboard, rather than a removable physical card."
+      - "Because there's no physical card to swap, switching carriers is done entirely through software — often by scanning a QR code the carrier provides."
+    key_points_label: "Exam Takeaways"
+    key_points:
+      - "eSIM requires no physical card slot"
+      - "Carrier profiles are provisioned over the network"
+      - "Many modern phones support dual-SIM via one physical SIM plus one eSIM"
+      - "eSIM cannot be physically removed if you switch devices"
+
+  # 11 — explanation_image --------------------------------------
+  - type: explanation_image
+    eyebrow: "Hardware Components"
+    title: "SIM Card Types"
+    paragraphs:
+      - "A SIM (Subscriber Identity Module) card stores the credentials that identify a phone to the cellular network. The physical size of the SIM has shrunk over generations while its function has remained unchanged."
+      - "Standard SIM, microSIM, and nanoSIM all carry the same gold contact chip — only the plastic frame around it differs. eSIM is embedded directly onto the motherboard, requiring no physical card at all."
+    image_src: null
+    image_alt: "Standard, micro, nano, and eSIM comparison"
+    image_caption: "Fig 1 — SIM card form factors: Standard · microSIM · nanoSIM · eSIM"
+
+  # 12 — background_image --------------------------------------
+  - type: background_image
+    eyebrow: "USB Standards"
+    image_src: "usb-image.jpg"
+    title: "USB Is Everywhere"
+    body: "From charging cables to external storage to docking stations — USB is the single most common connector you'll troubleshoot on any mobile device service call."
+
+  # 13 — comparison_2col --------------------------------------
+  - type: comparison_2col
+    eyebrow: "Compare"
+    title: "Standard SIM vs eSIM"
+    left:
+      heading: "Physical SIM"
+      style: "yellow"
+      points:
+        - "Removable — can be moved between devices instantly"
+        - "No carrier software setup required"
+        - "Vulnerable to being lost or physically damaged"
+        - "Requires a SIM ejector tool to remove"
+    right:
+      heading: "eSIM"
+      style: "red"
+      points:
+        - "Cannot be physically removed or swapped"
+        - "Activated via QR code or carrier app"
+        - "Immune to physical card damage or loss"
+        - "Not yet supported on every carrier or device"
+
+  # 14 — comparison_3col --------------------------------------
+  - type: comparison_3col
+    eyebrow: "Compare"
+    title: "Mobile Storage Options"
+    columns:
+      - heading: "Internal (eMMC)"
+        style: "neutral"
+        points:
+          - "Fixed, non-removable storage"
+          - "Lower cost, slower speeds"
+          - "Common in budget devices"
+      - heading: "Internal (UFS / NVMe)"
+        style: "center"
+        points:
+          - "Fixed, non-removable storage"
+          - "High-speed, found in flagship devices"
+          - "Cannot be expanded after purchase"
+      - heading: "MicroSD"
+        style: "yellow"
+        points:
+          - "Removable, expandable storage"
+          - "Speed varies widely by card class"
+          - "Being phased out on many flagship phones"
+
+  # 15 — table --------------------------------------------------
+  - type: table
+    eyebrow: "Reference"
+    title: "USB Standards & Speeds"
+    headers: ["Standard", "Max Speed", "Connector", "Notes"]
+    rows:
+      - cells: ["USB 2.0", "480 Mbps", "USB-A / Micro-USB", "Still common on budget accessories"]
+      - cells: ["USB 3.2 Gen 1", "5 Gbps", "USB-A / USB-C", "Formerly called USB 3.0"]
+      - cells: ["USB 3.2 Gen 2x2", "20 Gbps", "USB-C only", ""]
+      - cells: ["USB4", "40 Gbps", "USB-C only", "Built on Thunderbolt 3 protocol"]
+        highlight: "accent"
+
+  # 16 — important_note ------------------------------------------
+  - type: important_note
+    eyebrow: "Safety"
+    label: "Exam Trap"
+    headline: "Never Use a Metal Tool Near a Battery"
+    detail: "Puncturing or shorting a lithium-ion battery with a metal screwdriver or spudger can cause it to swell, overheat, or ignite. Always use plastic prying tools when opening a mobile device, and immediately stop work if a battery appears swollen."
+    variant: "danger"
+
+  # 17 — video_embed --------------------------------------------
+  - type: video_embed
+    eyebrow: "Watch"
+    video_title: "USB-C Explained in 5 Minutes"
+    description: "A quick visual walkthrough of USB-C connector pinouts, power delivery negotiation, and why 'USB-C' alone doesn't tell you the data speed."
+    tips:
+      - "Watch at 1x speed and pause on the pinout diagram"
+      - "Compare against the USB standards table on the previous slide"
+      - "Note how USB-C is a connector shape, not a speed guarantee"
+    youtube_id: "dQw4w9WgXcQ"
+
+  # 18 — tabs --------------------------------------------------
+  - type: tabs
+    eyebrow: "Wireless"
+    title: "Wireless Connection Methods"
+    intro: "Mobile devices use several short-range wireless standards, each suited to a different use case. Click a tab to explore each one."
+    tabs:
+      - label: "Bluetooth"
+        tag: "Method 01"
+        title: "Bluetooth"
+        paragraphs:
+          - "Bluetooth is a short-range wireless standard operating in the 2.4 GHz ISM band, used for headsets, keyboards, speakers, and file transfer."
+        points:
+          - "Typical range: 10 meters (Class 2)"
+          - "Requires a one-time pairing process"
+          - "Can experience interference from Wi-Fi on the same band"
+        image_src: null
+      - label: "NFC"
+        tag: "Method 02"
+        title: "Near Field Communication"
+        paragraphs:
+          - "NFC operates at a very short range — typically under 4 cm — and is used for contactless payments and quick pairing."
+        points:
+          - "No manual pairing required — just tap"
+          - "Used for Apple Pay, Google Pay, and transit cards"
+          - "Much lower data rate than Bluetooth"
+        image_src: null
+      - label: "Wi-Fi Direct"
+        tag: "Method 03"
+        title: "Wi-Fi Direct"
+        paragraphs:
+          - "Wi-Fi Direct lets two devices connect peer-to-peer using Wi-Fi hardware, without a router, at much higher speeds than Bluetooth."
+        points:
+          - "Used for screen mirroring and fast file transfer"
+          - "Higher power draw than Bluetooth"
+        image_src: null
+
+  # 19 — narrative_slider --------------------------------------
+  - type: narrative_slider
+    eyebrow: "Replacement Tools"
+    title: "Mobile Repair Tool Kit"
+    intro: "Safe mobile device repair requires the right tools. Using the wrong tool — especially metal on plastic clips — causes damage that voids warranties and fails the exam scenario. Click the arrows to explore each essential tool."
+    items:
+      - tag: "Tool 01 of 04"
+        title: "Plastic Spudger"
+        body: "A flat, plastic prying tool used to disconnect battery connectors and pry open plastic clips without scratching the case or shorting components."
+        image_src: null
+      - tag: "Tool 02 of 04"
+        title: "Suction Cup"
+        body: "Used to lift glued glass screens and back panels away from the chassis without cracking them."
+        image_src: null
+      - tag: "Tool 03 of 04"
+        title: "Precision Screwdriver Set"
+        body: "Mobile devices use very small proprietary screws (Torx, Pentalobe) — a standard screwdriver will strip them instantly."
+        image_src: null
+      - tag: "Tool 04 of 04"
+        title: "Heat Gun / Heat Pad"
+        body: "Softens the adhesive holding glued screens and covers in place, making removal safer and reducing the risk of cracking."
+        image_src: null
+
+  # 20 — image_flip_grid (exactly 4 cards) ------------------------
+  - type: image_flip_grid
+    eyebrow: "Connectors"
+    title: "Charging Connectors — Click to Compare"
+    cards:
+      - front_label: "USB-C"
+        image_src: null
+        back_eyebrow: "Connector 01"
+        back_title: "USB-C"
+        back_body: "Reversible, high-speed, supports up to 240W power delivery. The current industry standard across nearly all device types."
+        back_points: []
+      - front_label: "Lightning"
+        image_src: null
+        back_eyebrow: "Connector 02"
+        back_title: "Lightning"
+        back_body: "Apple's proprietary 8-pin reversible connector, used on iPhone and iPad models prior to the USB-C transition."
+        back_points: []
+      - front_label: "Micro-USB"
+        image_src: null
+        back_eyebrow: "Connector 03"
+        back_title: "Micro-USB"
+        back_body: "Legacy non-reversible connector, still found on budget accessories, chargers, and some older peripherals."
+        back_points: []
+      - front_label: "MagSafe"
+        image_src: null
+        back_eyebrow: "Connector 04"
+        back_title: "MagSafe"
+        back_body: "A magnetically-aligned wireless charging standard from Apple, built on the Qi wireless charging standard with added alignment magnets."
+        back_points: []
+
+  # 21 — image_flip_grid_2col (exactly 2 cards) --------------------
+  - type: image_flip_grid_2col
+    eyebrow: "Visual Comparison"
+    title: "LCD vs OLED — Click to Compare"
+    cards:
+      - front_label: "LCD Display"
+        image_src: null
+        back_eyebrow: "Display Type 01"
+        back_title: "LCD"
+        back_body: "Liquid Crystal Display uses a constant backlight behind a liquid crystal layer. Cannot produce true black — used widely in budget and mid-range devices."
+        back_points:
+          - "Backlight always on — dark grey, not true black"
+          - "IPS panels offer wide viewing angles and accurate colour"
+          - "More durable — less susceptible to burn-in than OLED"
+          - "Thicker — requires space for the backlight layer"
+      - front_label: "OLED Display"
+        image_src: null
+        back_eyebrow: "Display Type 02"
+        back_title: "OLED"
+        back_body: "Organic Light-Emitting Diode panels light each pixel individually — no backlight needed. Produces true blacks and higher contrast than LCD."
+        back_points:
+          - "Each pixel emits its own light — true blacks"
+          - "Thinner and more power-efficient on dark content"
+          - "Susceptible to burn-in with static images over time"
+          - "Standard on flagship phones and premium tablets"
+
+  # 22 — cta --------------------------------------------------
+  - type: cta
+    heading: "Ready for the Next Objective?"
+    subtext: "You've covered mobile device hardware — connectors, batteries, SIM cards, storage, and displays."
+    tagline: "Up next: Objective 1.2 — Mobile Device Accessories and Ports"
+    cards:
+      - label: "Subscribe"
+        primary: true
+      - label: "Like"
+        primary: false
+      - label: "Comment"
+        primary: false
+      - label: "Join Community"
+        primary: false
+
+  # 23 — outro --------------------------------------------------
+  - type: outro
+    channel_name: "VMSOIT"
+    tagline: "CompTIA A+ Core 1 (220-1201) Prep"
+    hint: "Thanks for watching — see you in the next lesson!"
+    next_videos:
+      - tag: "Watch Next"
+        title: "Objective 1.2 — Mobile Device Accessories and Ports"
+      - tag: "Popular"
+        title: "Objective 1.1 Exam Cram — Mobile Hardware in 10 Minutes"

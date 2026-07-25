@@ -1,0 +1,25 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <div class="steps-wrap">
+      {% for step in steps %}
+      <div class="step-row">
+        <span class="step-num">{{ "%02d"|format(loop.index) }}</span>
+        <div class="step-divider"></div>
+        <div>
+          <div class="step-title">{{ step.title }}</div>
+          <div class="step-desc">{{ step.desc }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

@@ -1,0 +1,15 @@
+# --- Core rendering pipeline ---
+Jinja2>=3.1,<4.0            # template engine for the 23 slide partials + shell
+PyYAML>=6.0,<7.0            # parses the notes YAML files into raw slide dicts
+pydantic>=2.6,<3.0          # per-slide-type schema validation (TYPE_REGISTRY models)
+
+# --- CLI & dev workflow ---
+click>=8.1,<9.0             # build.py command-line interface
+watchdog>=4.0,<5.0          # --watch flag: auto-rebuild on notes file save
+
+# --- Optional: Markdown-based notes input ---
+python-frontmatter>=1.1,<2.0  # parse front-matter + body for markdown-authored slides
+markdown-it-py>=3.0,<4.0       # markdown -> HTML for prose-heavy slide types
+
+# --- Local preview server (used by --watch) ---
+livereload>=2.6,<3.0        # auto-refreshing browser preview while editing notes

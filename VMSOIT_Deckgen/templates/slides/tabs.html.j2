@@ -1,0 +1,62 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}" data-tabs-slide>
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <p class="tabs-intro reveal">{{ intro }}</p>
+
+    <div class="tabs-component reveal" data-tabs-root>
+
+      <div class="tab-nav" data-tabs-nav>
+        <div class="tab-indicator" data-tabs-indicator></div>
+        {% for tab in tabs %}
+        <button class="tab-btn" data-index="{{ loop.index0 }}">{{ tab.label }}</button>
+        {% endfor %}
+      </div>
+
+      <div class="tab-panels" data-tabs-panels>
+        {% for tab in tabs %}
+        <div class="tab-panel" data-index="{{ loop.index0 }}">
+          <div class="tab-text">
+            <div class="tab-item-tag">{{ tab.tag }}</div>
+            <div class="tab-accent-line"></div>
+            <div class="tab-item-title">{{ tab.title }}</div>
+            <div class="tab-item-body">
+              {% for para in tab.paragraphs %}
+              <p>{{ para }}</p>
+              {% endfor %}
+              {% if tab.points %}
+              <ul>
+                {% for point in tab.points %}
+                <li>
+                  {{ m.chevron(width="4", class="") }}
+                  <span>{{ point }}</span>
+                </li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </div>
+          </div>
+          <div class="tab-img-wrap">
+            {% if tab.image_src %}
+            <img class="tab-img" src="{{ tab.image_src }}" alt="{{ tab.title }}" />
+            {% else %}
+            <div class="tab-img-placeholder">
+              {{ m.icon_placeholder() }}
+              <span>Add {{ tab.title|lower }} image here</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

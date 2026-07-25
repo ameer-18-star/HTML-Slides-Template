@@ -1,0 +1,35 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <div class="unord-wrap" data-pop-wrap>
+      {% for item in items %}
+      <div class="unord-item">
+        <div class="unord-bullet">
+          {{ m.chevron(width="4.5", class="") }}
+        </div>
+        <div class="unord-divider"></div>
+        <div class="unord-content">
+          <div class="unord-title">{{ item.title }}</div>
+          <div class="unord-desc">{{ item.desc }}</div>
+          <div class="unord-detail">{{ item.detail }}</div>
+        </div>
+        <span class="unord-hint-label">expand</span>
+        <div class="unord-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2.5" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

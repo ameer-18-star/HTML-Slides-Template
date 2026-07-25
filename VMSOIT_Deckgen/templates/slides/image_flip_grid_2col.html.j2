@@ -1,0 +1,71 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <div class="flip-grid-2col">
+      {% for card in cards %}
+      <div class="flip-card-wrap">
+        <div class="flip-card" data-flip-card tabindex="0" aria-label="{{ card.front_label }} flip card">
+          <div class="flip-card-inner">
+
+            <div class="flip-front">
+              {% if card.image_src %}
+              <img src="{{ card.image_src }}" alt="{{ card.front_label }}" />
+              {% else %}
+              <div class="flip-img-placeholder">
+                {{ m.icon_placeholder() }}
+                <span>{{ card.front_label }}</span>
+              </div>
+              {% endif %}
+              <div class="flip-front-overlay">
+                <span class="flip-front-label">{{ card.front_label }}</span>
+                <span class="flip-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 4v6h6" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.07" />
+                  </svg>
+                  flip
+                </span>
+              </div>
+            </div>
+
+            <div class="flip-back flip-back-2col">
+              <span class="flip-back-eyebrow">{{ card.back_eyebrow }}</span>
+              <div class="flip-back-title-lg">{{ card.back_title }}</div>
+              <p class="flip-back-body" style="position:relative;z-index:1;">{{ card.back_body }}</p>
+              {% if card.back_points %}
+              <ul class="flip-back-list">
+                {% for point in card.back_points %}
+                <li>
+                  {{ m.chevron(width="4", class="") }}
+                  <span>{{ point }}</span>
+                </li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+              <div class="flip-back-foot">
+                <div class="flip-back-divider" style="margin-top:0;"></div>
+                <span class="flip-back-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6" />
+                    <path d="M20.49 15a9 9 0 1 1-.49-4.07" />
+                  </svg>
+                  click to flip back
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

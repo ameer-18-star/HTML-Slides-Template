@@ -1,0 +1,31 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide major-heading-slide glow-tr" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <div class="mh-layout">
+
+      <div class="mh-left reveal">
+        <div class="mh-title-wrap">
+          <div class="mh-bar"></div>
+          <h2 class="mh-title">{{ title }}</h2>
+        </div>
+        {% for para in paragraphs %}
+        <p class="mh-para">{{ para }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="mh-right reveal">
+        <div class="mh-accent-card cut">
+          <div class="mh-big-num">{{ big_num }}</div>
+          <div class="mh-accent-lbl">{{ big_label }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

@@ -1,0 +1,31 @@
+{% import "slides/_macros.html.j2" as m %}
+{% set colors = {"yellow": "#FFF600", "red": "#D7263D", "neutral": "#9A9A9A", "center": "#FFF600"} %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <div class="cmp3-layout">
+      {% for col in columns %}
+      <div class="cmp-card col-{{ col.style }} from-bottom">
+        <div class="cmp-head">{{ col.heading }}</div>
+        <div class="cmp-body">
+          <ul>
+            {% for point in col.points %}
+            <li>
+              {{ m.chevron(color=colors[col.style], width="4", class="") }}
+              <span>{{ point }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

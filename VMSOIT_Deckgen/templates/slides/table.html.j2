@@ -1,0 +1,37 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <div class="table-wrap reveal">
+      <table class="data-table">
+        <thead>
+          <tr>
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            {% for cell in row.cells %}
+            {% if loop.first and row.highlight %}
+            <td class="td-{{ row.highlight }}">{{ cell }}</td>
+            {% else %}
+            <td>{{ cell }}</td>
+            {% endif %}
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

@@ -1,0 +1,20 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide title-slide glow-tr active visible" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    <img class="big-logo reveal" src="vmsoit-logo.png" alt="VMSOIT" />
+
+    <p class="eyebrow reveal">
+      {{ m.chevron() }}
+      {{ eyebrow }}
+    </p>
+
+    <h1 class="reveal">{{ heading }}</h1>
+
+    <p class="sub reveal">{{ subtitle }}</p>
+
+    <p class="tagline reveal">{{ tagline }}</p>
+
+  </div>
+</section>

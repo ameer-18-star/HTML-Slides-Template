@@ -1,0 +1,6227 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VMSOIT Slide Templates — 6 Core Types</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Roboto+Condensed:wght@400;500;700&family=Roboto+Slab:wght@400;700;900&family=Roboto+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ===========================================
+   BRAND TOKENS — VMSOIT design-system
+   Single source of truth. No color or font
+   may be introduced outside this block.
+   =========================================== */
+    :root {
+      --bg-primary: #101010;
+      --bg-secondary: #181818;
+      --bg-tertiary: #1e1e1e;
+      --border: #2b2b2b;
+      --text-primary: #f3f3f3;
+      --text-secondary: #9a9a9a;
+      --text-tertiary: #6b6b6b;
+      --accent: #fff600;
+      --accent-ink: #1a1700;
+      --accent-glow: rgba(255, 246, 0, 0.16);
+      --danger: #d7263d;
+      --danger-glow: rgba(215, 38, 61, 0.18);
+      --font-display: "Roboto Slab", serif;
+      --font-body: "Roboto", sans-serif;
+      --font-label: "Roboto Condensed", sans-serif;
+      --font-mono: "Roboto Mono", monospace;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --dur: 0.6s;
+      --cut: 22px;
+      --cut-sm: 14px;
+      --stage-bg: #000;
+      --slide-bg: var(--bg-primary);
+    }
+
+    /* ===========================================
+   RESET
+   =========================================== */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text-primary);
+    }
+
+    img,
+    video,
+    canvas,
+    svg {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* ===========================================
+   VIEWPORT — fixed 16:9 stage
+   =========================================== */
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--stage-bg);
+    }
+
+    .deck-viewport {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background: var(--stage-bg);
+    }
+
+    .deck-stage {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      transform-origin: 0 0;
+      background: var(--slide-bg);
+    }
+
+    /* ===========================================
+   SLIDE BASE
+   =========================================== */
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      display: block;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      background: var(--slide-bg);
+      /* Grid texture */
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 64px 64px;
+      transition: opacity 0.5s var(--ease-out-expo);
+    }
+
+    .slide.active,
+    .slide.visible {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 1;
+    }
+
+    /* ===========================================
+   SLIDE INNER
+   =========================================== */
+    .slide-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      padding: 78px 100px;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(14px);
+      transition: transform 0.55s var(--ease-out-expo);
+    }
+
+    .slide.visible .slide-inner {
+      transform: translateY(0);
+    }
+
+    /* ===========================================
+   ATMOSPHERE — corner glow + watermark
+   =========================================== */
+    .glow-tr::before {
+      content: "";
+      position: absolute;
+      right: -180px;
+      top: -180px;
+      width: 620px;
+      height: 620px;
+      background: radial-gradient(circle, var(--accent-glow), transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .watermark {
+      position: absolute;
+      right: -60px;
+      bottom: -90px;
+      width: 560px;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===========================================
+   STAGGERED REVEAL — .reveal children
+   =========================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition:
+        opacity var(--dur) var(--ease-out-expo),
+        transform var(--dur) var(--ease-out-expo);
+    }
+
+    .slide.visible .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .slide.visible .reveal:nth-child(1) {
+      transition-delay: 0.05s;
+    }
+
+    .slide.visible .reveal:nth-child(2) {
+      transition-delay: 0.14s;
+    }
+
+    .slide.visible .reveal:nth-child(3) {
+      transition-delay: 0.23s;
+    }
+
+    .slide.visible .reveal:nth-child(4) {
+      transition-delay: 0.32s;
+    }
+
+    .slide.visible .reveal:nth-child(5) {
+      transition-delay: 0.41s;
+    }
+
+    .slide.visible .reveal:nth-child(6) {
+      transition-delay: 0.50s;
+    }
+
+    /* card/icon/stat micro-stagger */
+    .card-grid .card:nth-child(1) {
+      transition-delay: 0.10s;
+    }
+
+    .card-grid .card:nth-child(2) {
+      transition-delay: 0.20s;
+    }
+
+    .card-grid .card:nth-child(3) {
+      transition-delay: 0.30s;
+    }
+
+    .card-grid .card:nth-child(4) {
+      transition-delay: 0.40s;
+    }
+
+    .icon-grid .icon-tile:nth-child(1) {
+      transition-delay: 0.05s;
+    }
+
+    .icon-grid .icon-tile:nth-child(2) {
+      transition-delay: 0.10s;
+    }
+
+    .icon-grid .icon-tile:nth-child(3) {
+      transition-delay: 0.15s;
+    }
+
+    .icon-grid .icon-tile:nth-child(4) {
+      transition-delay: 0.20s;
+    }
+
+    .icon-grid .icon-tile:nth-child(5) {
+      transition-delay: 0.25s;
+    }
+
+    .icon-grid .icon-tile:nth-child(6) {
+      transition-delay: 0.30s;
+    }
+
+    .stat-grid .stat-cell:nth-child(1) {
+      transition-delay: 0.05s;
+    }
+
+    .stat-grid .stat-cell:nth-child(2) {
+      transition-delay: 0.10s;
+    }
+
+    .stat-grid .stat-cell:nth-child(3) {
+      transition-delay: 0.15s;
+    }
+
+    .stat-grid .stat-cell:nth-child(4) {
+      transition-delay: 0.20s;
+    }
+
+    /* ===========================================
+   SHARED COMPONENTS
+   =========================================== */
+
+    /* Angular clip helpers */
+    .cut {
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+    }
+
+    .cut-sm {
+      clip-path: polygon(0 0, calc(100% - var(--cut-sm)) 0, 100% var(--cut-sm), 100% 100%, 0 100%);
+    }
+
+    /* Eyebrow label */
+    .eyebrow {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      width: 100%;
+    }
+
+    .eyebrow .chev {
+      width: 20px;
+      height: 14px;
+    }
+
+    .eyebrow .idx {
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      letter-spacing: 1px;
+    }
+
+    /* Headings */
+    h1.title,
+    h2.title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 64px;
+      line-height: 1.04;
+      letter-spacing: -0.01em;
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: 26px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 1180px;
+      margin-bottom: 10px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 36px 38px;
+      position: relative;
+    }
+
+    .card.accent-top {
+      border-top: 4px solid var(--tc, var(--accent));
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 30px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .card-title svg {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+    }
+
+    .card p,
+    .card li {
+      font-size: 21px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .card li {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .card li svg {
+      width: 14px;
+      height: 11px;
+      margin-top: 7px;
+      flex: 0 0 auto;
+    }
+
+    .card li b {
+      color: var(--text-primary);
+      font-family: var(--font-label);
+      font-weight: 700;
+    }
+
+    /* Card grid */
+    .card-grid {
+      display: grid;
+      gap: 26px;
+      flex: 1;
+    }
+
+    .cols-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .cols-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* Callout */
+    .callout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 26px 32px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+    }
+
+    .callout.danger {
+      border-color: var(--danger);
+      background: linear-gradient(0deg, var(--danger-glow), var(--danger-glow)), var(--bg-secondary);
+    }
+
+    .callout svg {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+
+    .callout .ct-title {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .callout.danger .ct-title {
+      color: var(--danger);
+    }
+
+    .callout p {
+      font-size: 20px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* Mono pill */
+    .mono-pill {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      color: var(--accent);
+      background: #000;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      display: inline-block;
+    }
+
+    /* Footer bar */
+    .footer-bar {
+      position: absolute;
+      left: 100px;
+      right: 100px;
+      bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      color: var(--text-tertiary);
+      letter-spacing: 1px;
+      z-index: 1;
+    }
+
+    .footer-bar .fb-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-bar img {
+      height: 18px;
+    }
+
+    /* ===========================================
+   TYPE 1 — title-slide (certification-logo)
+   =========================================== */
+    .title-slide .slide-inner {
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .title-slide .big-logo {
+      width: 300px;
+      margin-bottom: 46px;
+      filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.6));
+    }
+
+    .title-slide h1 {
+      font-size: 128px;
+      line-height: 0.94;
+      margin-bottom: 18px;
+    }
+
+    .title-slide .sub {
+      font-family: var(--font-label);
+      font-weight: 500;
+      font-size: 32px;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
+      max-width: 1300px;
+      line-height: 1.4;
+      margin-bottom: 34px;
+    }
+
+    .title-slide .tagline {
+      font-family: var(--font-label);
+      font-size: 20px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .title-slide .tagline b {
+      color: var(--accent);
+    }
+
+    /* ===========================================
+   TYPE 2 — agenda
+   =========================================== */
+    .agenda-layout {
+      display: grid;
+      grid-template-columns: 900px 1fr;
+      gap: 60px;
+      flex: 1;
+      align-items: start;
+    }
+
+    .agenda-item {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      padding: 22px 28px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      margin-bottom: 14px;
+      clip-path: polygon(0 0, calc(100% - var(--cut-sm)) 0, 100% var(--cut-sm), 100% 100%, 0 100%);
+      opacity: 0;
+      transform: translateX(-40px);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        background 200ms ease,
+        border-left-color 200ms ease;
+    }
+
+    .agenda-item:hover {
+      background: var(--bg-tertiary);
+      border-left-color: var(--accent);
+      transition-delay: 0s;
+    }
+
+    .slide.visible .agenda-item:nth-child(1) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.10s;
+    }
+
+    .slide.visible .agenda-item:nth-child(2) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.18s;
+    }
+
+    .slide.visible .agenda-item:nth-child(3) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.26s;
+    }
+
+    .slide.visible .agenda-item:nth-child(4) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.34s;
+    }
+
+    .slide.visible .agenda-item:nth-child(5) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.42s;
+    }
+
+    .slide.visible .agenda-item:nth-child(6) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.50s;
+    }
+
+    .agenda-num {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 26px;
+      color: var(--accent);
+      flex: 0 0 44px;
+      line-height: 1;
+    }
+
+    .agenda-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .agenda-sub {
+      font-family: var(--font-body);
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    /* Agenda right decoration cards */
+    .agenda-deco {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      padding-top: 4px;
+    }
+
+    .agenda-deco-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 26px 32px;
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+    }
+
+    .agenda-deco-card.dc-accent {
+      border-top: 3px solid var(--accent);
+    }
+
+    .agenda-deco-card .dc-tag {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-tertiary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .agenda-deco-card .dc-val {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 1px;
+      color: var(--text-primary);
+    }
+
+    .agenda-deco-card.dc-accent .dc-val {
+      color: var(--accent);
+    }
+
+    /* ===========================================
+   TYPE 3 — topic-list (Objectives)
+   =========================================== */
+    .topic-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 48px;
+      flex: 1;
+      align-content: start;
+    }
+
+    .topic-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      border-left: 2px solid transparent;
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(10px);
+      transition:
+        opacity 0.45s var(--ease-out-expo),
+        transform 0.45s var(--ease-out-expo),
+        background 150ms ease,
+        border-left-color 150ms ease,
+        color 150ms ease;
+    }
+
+    .topic-item svg {
+      width: 12px;
+      height: 9px;
+      flex: 0 0 auto;
+      margin-top: 4px;
+    }
+
+    .topic-item:hover {
+      background: #1f1f00;
+      border-left-color: var(--accent);
+      color: #fff;
+      transition-delay: 0s;
+    }
+
+    .slide.visible .topic-item:nth-child(1) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.04s;
+    }
+
+    .slide.visible .topic-item:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.10s;
+    }
+
+    .slide.visible .topic-item:nth-child(3) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.16s;
+    }
+
+    .slide.visible .topic-item:nth-child(4) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.22s;
+    }
+
+    .slide.visible .topic-item:nth-child(5) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.28s;
+    }
+
+    .slide.visible .topic-item:nth-child(6) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.34s;
+    }
+
+    .slide.visible .topic-item:nth-child(7) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.40s;
+    }
+
+    .slide.visible .topic-item:nth-child(8) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.46s;
+    }
+
+    .slide.visible .topic-item:nth-child(9) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.52s;
+    }
+
+    .slide.visible .topic-item:nth-child(10) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.58s;
+    }
+
+    .slide.visible .topic-item:nth-child(11) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.64s;
+    }
+
+    .slide.visible .topic-item:nth-child(12) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.70s;
+    }
+
+    /* ===========================================
+   TYPE 4 — major-heading (H2 + barPulse)
+   =========================================== */
+    .mh-layout {
+      display: grid;
+      grid-template-columns: 55% 45%;
+      gap: 60px;
+      flex: 1;
+      align-items: center;
+    }
+
+    .mh-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mh-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .major-heading-slide .mh-left.reveal {
+      transition-delay: 0.12s;
+    }
+
+    .major-heading-slide .mh-right.reveal {
+      transition-delay: 0.32s;
+    }
+
+    .mh-title-wrap {
+      position: relative;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+
+    .mh-bar {
+      position: absolute;
+      left: -10px;
+      right: -10px;
+      top: 0;
+      bottom: 0;
+      background: var(--accent);
+      transform-origin: left center;
+      z-index: 0;
+      animation: barPulse 3s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+
+    .slide.visible .mh-bar {
+      animation-play-state: running;
+    }
+
+    h2.mh-title {
+      position: relative;
+      z-index: 1;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 80px;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      animation: textColorPulse 3s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+
+    .slide.visible h2.mh-title {
+      animation-play-state: running;
+    }
+
+    @keyframes barPulse {
+      0% {
+        transform: scaleX(1);
+      }
+
+      45% {
+        transform: scaleX(0);
+      }
+
+      55% {
+        transform: scaleX(0);
+      }
+
+      100% {
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes textColorPulse {
+      0% {
+        color: var(--accent-ink);
+      }
+
+      45% {
+        color: var(--accent);
+      }
+
+      55% {
+        color: var(--accent);
+      }
+
+      100% {
+        color: var(--accent-ink);
+      }
+    }
+
+    .mh-para {
+      font-family: var(--font-body);
+      font-size: 22px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      max-width: 860px;
+    }
+
+    .mh-para+.mh-para {
+      margin-top: 18px;
+    }
+
+    .mh-accent-card {
+      width: 100%;
+      min-height: 440px;
+      padding: 50px 44px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .mh-big-num {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 160px;
+      color: var(--accent);
+      line-height: 1;
+      opacity: 0.75;
+    }
+
+    .mh-accent-lbl {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 19px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    /* ===========================================
+   TYPE 5 — minor-heading (H3 + clip wipe)
+   =========================================== */
+    .mnh-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 60px;
+      flex: 1;
+      align-items: start;
+    }
+
+    .mnh-left {
+      display: flex;
+      flex-direction: column;
+    }
+
+    h3.mnh-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 68px;
+      line-height: 1.04;
+      letter-spacing: -0.01em;
+      margin-bottom: 30px;
+      clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+      transition: clip-path 550ms var(--ease-out-expo);
+    }
+
+    .slide.visible h3.mnh-title {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .mnh-para {
+      font-size: 22px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      max-width: 1000px;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+    }
+
+    .mnh-para+.mnh-para {
+      margin-top: 18px;
+    }
+
+    .slide.visible .mnh-para:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.50s;
+    }
+
+    .slide.visible .mnh-para:nth-child(3) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.63s;
+    }
+
+    .slide.visible .mnh-para:nth-child(4) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.76s;
+    }
+
+    .minor-heading-slide .mnh-accent-card.reveal {
+      transition-delay: 0.38s;
+    }
+
+    .mnh-accent-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      padding: 32px 30px;
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+    }
+
+    .mnh-accent-card .ac-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .mnh-accent-card .ac-point {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .mnh-accent-card .ac-point svg {
+      width: 12px;
+      height: 9px;
+      flex: 0 0 auto;
+      margin-top: 5px;
+    }
+
+    /* ===========================================
+   TYPE 6 — bullet-list (2-column, chevron)
+   =========================================== */
+    .bullet-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 40px;
+      flex: 1;
+      align-content: start;
+    }
+
+    .bullet-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      padding: 20px 24px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      clip-path: polygon(0 0, calc(100% - var(--cut-sm)) 0, 100% var(--cut-sm), 100% 100%, 0 100%);
+      opacity: 0;
+      transform: translateY(20px);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        background 200ms ease,
+        border-left-color 200ms ease;
+    }
+
+    .bullet-item:hover {
+      background: #1a1a00;
+      border-left-color: var(--accent);
+      transition-delay: 0s;
+    }
+
+    .bullet-item svg {
+      width: 14px;
+      height: 11px;
+      flex: 0 0 auto;
+      margin-top: 6px;
+    }
+
+    .bi-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 19px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+
+    .bi-sub {
+      font-family: var(--font-body);
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .slide.visible .bullet-item:nth-child(1) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.07s;
+    }
+
+    .slide.visible .bullet-item:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.14s;
+    }
+
+    .slide.visible .bullet-item:nth-child(3) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.21s;
+    }
+
+    .slide.visible .bullet-item:nth-child(4) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.28s;
+    }
+
+    .slide.visible .bullet-item:nth-child(5) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.35s;
+    }
+
+    .slide.visible .bullet-item:nth-child(6) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.42s;
+    }
+
+    .slide.visible .bullet-item:nth-child(7) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.49s;
+    }
+
+    .slide.visible .bullet-item:nth-child(8) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.56s;
+    }
+
+    /* ===========================================
+   TYPE 7 — numbered-list (Ordered steps)
+   =========================================== */
+    .steps-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .step-row {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 22px 32px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      clip-path: polygon(0 0, calc(100% - var(--cut-sm)) 0, 100% var(--cut-sm), 100% 100%, 0 100%);
+      opacity: 0;
+      transform: translateX(60px);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        background 200ms ease,
+        border-color 200ms ease;
+    }
+
+    .step-row:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--accent);
+      transition-delay: 0s;
+    }
+
+    .step-num {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 60px;
+      color: var(--accent);
+      line-height: 1;
+      flex: 0 0 72px;
+      text-align: right;
+      transition: font-size 200ms ease, color 200ms ease;
+    }
+
+    .step-row:hover .step-num {
+      font-size: 68px;
+    }
+
+    .step-divider {
+      width: 2px;
+      height: 50px;
+      background: var(--border);
+      flex: 0 0 auto;
+      transition: background 200ms ease;
+    }
+
+    .step-row:hover .step-divider {
+      background: var(--accent);
+    }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 26px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-family: var(--font-body);
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .slide.visible .step-row:nth-child(1) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.08s;
+    }
+
+    .slide.visible .step-row:nth-child(2) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.17s;
+    }
+
+    .slide.visible .step-row:nth-child(3) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.26s;
+    }
+
+    .slide.visible .step-row:nth-child(4) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.35s;
+    }
+
+    .slide.visible .step-row:nth-child(5) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.44s;
+    }
+
+    .slide.visible .step-row:nth-child(6) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.53s;
+    }
+
+    .slide.visible .step-row:nth-child(7) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.62s;
+    }
+
+    .slide.visible .step-row:nth-child(8) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.71s;
+    }
+
+    /* ===========================================
+   TYPE 8 — explanation-text
+   =========================================== */
+    .expl-layout {
+      display: grid;
+      grid-template-columns: 1fr 460px;
+      gap: 60px;
+      flex: 1;
+      align-items: start;
+    }
+
+    .expl-left {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .expl-para {
+      font-family: var(--font-body);
+      font-size: 22px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .expl-right-card {
+      background: #0e1100;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      padding: 36px 32px;
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      opacity: 0;
+      transform: translateX(50px);
+      transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+    }
+
+    .slide.visible .expl-right-card {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.32s;
+    }
+
+    .expl-right-card .er-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .expl-right-card .er-point {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .expl-right-card .er-point svg {
+      width: 12px;
+      height: 9px;
+      flex: 0 0 auto;
+      margin-top: 5px;
+    }
+
+    /* ===========================================
+   TYPE 9 — explanation-image
+   =========================================== */
+    .expl-img-layout {
+      display: grid;
+      grid-template-columns: 55% 45%;
+      gap: 60px;
+      flex: 1;
+      align-items: center;
+    }
+
+    .expl-img-left {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .expl-img-left h2.ei-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 60px;
+      line-height: 1.04;
+      letter-spacing: -0.01em;
+    }
+
+    .expl-img-left .ei-para {
+      font-family: var(--font-body);
+      font-size: 21px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .img-box {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      border: 1px solid var(--accent);
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      opacity: 0;
+      transform: translateX(60px);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        box-shadow 200ms ease;
+    }
+
+    .img-box:hover {
+      box-shadow: 0 0 28px #fff60055;
+      transition-delay: 0s;
+    }
+
+    .slide.visible .img-box {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.28s;
+    }
+
+    .img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 300ms ease;
+    }
+
+    .img-box:hover img {
+      transform: scale(1.03);
+    }
+
+    .img-caption {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .img-placeholder {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      color: var(--text-tertiary);
+    }
+
+    /* ===========================================
+   TYPE 10 — background-image (Ken Burns)
+   =========================================== */
+    .bg-image-slide {
+      overflow: hidden;
+    }
+
+    .bg-img-wrap {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .bg-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.25;
+      animation: kenBurns 10s ease-in-out infinite alternate;
+      animation-play-state: paused;
+    }
+
+    .slide.visible .bg-img-wrap img {
+      animation-play-state: running;
+    }
+
+    @keyframes kenBurns {
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.07);
+      }
+    }
+
+    .bg-image-slide .slide-inner {
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .bi-overlay {
+      max-width: 1100px;
+      background: rgba(16, 16, 16, 0.75);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      padding: 52px 64px;
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+    }
+
+    h2.bi-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 76px;
+      line-height: 1.04;
+      margin-bottom: 18px;
+    }
+
+    .bi-body {
+      font-family: var(--font-body);
+      font-size: 23px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ===========================================
+   TYPE 11 — comparison-2col
+   =========================================== */
+    .cmp2-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      flex: 1;
+    }
+
+    .cmp-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        border-color 200ms ease,
+        box-shadow 200ms ease;
+    }
+
+    .cmp-card.from-left {
+      transform: translateX(-60px);
+    }
+
+    .cmp-card.from-right {
+      transform: translateX(60px);
+    }
+
+    .cmp-card.from-bottom {
+      transform: translateY(40px);
+    }
+
+    .slide.visible .cmp-card.from-left {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.08s;
+    }
+
+    .slide.visible .cmp-card.from-right {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.22s;
+    }
+
+    .cmp-card:hover {
+      transform: translateY(-4px) !important;
+      transition-delay: 0s !important;
+    }
+
+    .cmp-card.col-yellow:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 30px #fff60022;
+    }
+
+    .cmp-card.col-red:hover {
+      border-color: var(--danger);
+      box-shadow: 0 4px 30px #d7263d22;
+    }
+
+    .cmp-card.col-neutral:hover {
+      border-color: var(--text-secondary);
+    }
+
+    .cmp-card.col-center:hover {
+      border-color: var(--accent);
+    }
+
+    .cmp-head {
+      padding: 26px 32px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 30px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .cmp-head svg {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+    }
+
+    .cmp-card.col-yellow .cmp-head {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .cmp-card.col-red .cmp-head {
+      color: var(--danger);
+      border-bottom-color: var(--danger);
+    }
+
+    .cmp-card.col-neutral .cmp-head {
+      color: var(--text-secondary);
+    }
+
+    .cmp-card.col-center .cmp-head {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .cmp-body {
+      padding: 26px 32px;
+      flex: 1;
+    }
+
+    .cmp-body ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .cmp-body li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      font-size: 20px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .cmp-body li svg {
+      width: 14px;
+      height: 11px;
+      flex: 0 0 auto;
+      margin-top: 5px;
+    }
+
+    .cmp-body li b {
+      color: var(--text-primary);
+      font-family: var(--font-label);
+      font-weight: 700;
+    }
+
+    /* ===========================================
+   TYPE 12 — comparison-3col
+   =========================================== */
+    .cmp3-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      flex: 1;
+    }
+
+    .cmp3-layout .cmp-card {
+      transform: translateY(40px);
+    }
+
+    .slide.visible .cmp3-layout .cmp-card:nth-child(1) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.06s;
+    }
+
+    .slide.visible .cmp3-layout .cmp-card:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.18s;
+    }
+
+    .slide.visible .cmp3-layout .cmp-card:nth-child(3) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.30s;
+    }
+
+    .cmp3-layout .cmp-card:hover {
+      transform: translateY(-4px) !important;
+      transition-delay: 0s !important;
+    }
+
+    /* ===========================================
+   TYPE 13 — table
+   =========================================== */
+    .table-wrap {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table thead tr {
+      clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+      transition: clip-path 500ms var(--ease-out-expo);
+    }
+
+    .slide.visible .data-table thead tr {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition-delay: 0.05s;
+    }
+
+    .data-table th {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--bg-secondary);
+      padding: 16px 22px;
+      text-align: left;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .data-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      cursor: default;
+    }
+
+    .data-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.018);
+    }
+
+    .data-table td {
+      font-family: var(--font-body);
+      font-size: 19px;
+      color: var(--text-secondary);
+      padding: 14px 22px;
+      line-height: 1.4;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition:
+        opacity 0.4s var(--ease-out-expo),
+        transform 0.4s var(--ease-out-expo),
+        background 150ms ease,
+        color 150ms ease;
+    }
+
+    .data-table tbody tr:hover td {
+      background: #1a1a00;
+      color: #fff;
+      transition-delay: 0s !important;
+    }
+
+    .data-table .td-accent {
+      font-family: var(--font-mono);
+      color: var(--accent) !important;
+    }
+
+    .data-table .td-danger {
+      font-family: var(--font-mono);
+      color: var(--danger) !important;
+    }
+
+    .slide.visible .data-table tbody tr:nth-child(1) td {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.14s;
+    }
+
+    .slide.visible .data-table tbody tr:nth-child(2) td {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.22s;
+    }
+
+    .slide.visible .data-table tbody tr:nth-child(3) td {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.30s;
+    }
+
+    .slide.visible .data-table tbody tr:nth-child(4) td {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.38s;
+    }
+
+    .slide.visible .data-table tbody tr:nth-child(5) td {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.46s;
+    }
+
+    .slide.visible .data-table tbody tr:nth-child(6) td {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.54s;
+    }
+
+    .slide.visible .data-table tbody tr:nth-child(7) td {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.62s;
+    }
+
+    /* ===========================================
+   TYPE 14 — important-note
+   =========================================== */
+    .note-slide .slide-inner {
+      justify-content: center;
+      align-items: center;
+    }
+
+    .note-card {
+      max-width: 1240px;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--accent);
+      background: var(--bg-secondary);
+      padding: 56px 70px;
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+      opacity: 0;
+      transform: scale(0.93);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        box-shadow 250ms ease;
+    }
+
+    .slide.visible .note-card {
+      opacity: 1;
+      transform: scale(1);
+      transition-delay: 0.08s;
+    }
+
+    .note-card:hover {
+      box-shadow: 0 0 40px #fff60033;
+      transform: translateY(-6px) scale(1) !important;
+      transition-delay: 0s !important;
+    }
+
+    .note-card.note-danger {
+      border-left-color: var(--danger);
+    }
+
+    .note-card.note-danger .note-label {
+      color: var(--danger);
+    }
+
+    .note-card.note-danger:hover {
+      box-shadow: 0 0 40px #d7263d33;
+    }
+
+    .note-icon {
+      flex: 0 0 54px;
+    }
+
+    .note-icon svg {
+      width: 54px;
+      height: 54px;
+    }
+
+    .note-body-wrap {
+      flex: 1;
+    }
+
+    .note-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .note-headline {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 50px;
+      line-height: 1.06;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+    }
+
+    .note-detail {
+      font-family: var(--font-body);
+      font-size: 22px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ===========================================
+   TYPE 15 — video-embed
+   =========================================== */
+    .video-layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 60px;
+      flex: 1;
+      align-items: center;
+    }
+
+    .video-left {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .vl-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 34px;
+      line-height: 1.1;
+      color: var(--text-primary);
+    }
+
+    .vl-desc {
+      font-family: var(--font-body);
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .vl-tips {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .vl-tip {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 16px;
+      color: var(--text-tertiary);
+      line-height: 1.5;
+    }
+
+    .vl-tip svg {
+      width: 12px;
+      height: 9px;
+      flex: 0 0 auto;
+      margin-top: 4px;
+    }
+
+    .video-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 2px solid var(--accent);
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
+    }
+
+    .slide.visible .video-box {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.28s;
+    }
+
+    .video-box iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* ===========================================
+   TYPE 16 — cta (Call to Action)
+   =========================================== */
+    .cta-slide .slide-inner {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 0;
+    }
+
+    .cta-heading {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 80px;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      margin-bottom: 14px;
+    }
+
+    .cta-sub {
+      font-family: var(--font-label);
+      font-size: 22px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 52px;
+    }
+
+    .cta-cards {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      margin-bottom: 44px;
+    }
+
+    .cta-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 36px 42px;
+      min-width: 240px;
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        border-color 200ms ease,
+        box-shadow 200ms ease;
+    }
+
+    .cta-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 24px #fff60022;
+      transform: translateY(-4px) !important;
+      transition-delay: 0s !important;
+    }
+
+    .cta-card.cc-primary {
+      border-top: 3px solid var(--accent);
+    }
+
+    .cta-card svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .cc-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    .cta-card.cc-primary .cc-label {
+      color: var(--accent);
+    }
+
+    .cta-tagline {
+      font-family: var(--font-label);
+      font-size: 20px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .cta-tagline b {
+      color: var(--accent);
+    }
+
+    .slide.visible .cta-card:nth-child(1) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.10s;
+    }
+
+    .slide.visible .cta-card:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.20s;
+    }
+
+    .slide.visible .cta-card:nth-child(3) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.30s;
+    }
+
+    .slide.visible .cta-card:nth-child(4) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.40s;
+    }
+
+    /* ===========================================
+   TYPE 17 — outro
+   =========================================== */
+    .outro-slide .slide-inner {
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+    }
+
+    .outro-channel {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .outro-channel span {
+      color: var(--accent);
+    }
+
+    .outro-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+
+    .outro-subscribe {
+      width: 240px;
+      height: 70px;
+      background: var(--danger);
+      color: #fff;
+      clip-path: polygon(0 0, calc(100% - var(--cut-sm)) 0, 100% var(--cut-sm), 100% 100%, 0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      animation: subscribePulse 1.5s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+
+    .slide.visible .outro-subscribe {
+      animation-play-state: running;
+    }
+
+    @keyframes subscribePulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .outro-subscribe svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .outro-hint {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-tertiary);
+      letter-spacing: 1px;
+    }
+
+    .outro-cards {
+      display: flex;
+      gap: 36px;
+      justify-content: center;
+    }
+
+    .outro-video-card {
+      width: 380px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(32px);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        border-color 200ms ease;
+    }
+
+    .outro-video-card:hover {
+      border-color: var(--accent);
+      transition-delay: 0s;
+    }
+
+    .slide.visible .outro-video-card:nth-child(1) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.18s;
+    }
+
+    .slide.visible .outro-video-card:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.32s;
+    }
+
+    .outro-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .outro-thumb svg {
+      width: 44px;
+      height: 44px;
+      opacity: 0.35;
+    }
+
+    .outro-card-info {
+      padding: 16px 18px;
+    }
+
+    .outro-card-tag {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-tertiary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .outro-card-title {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    /* ===========================================
+   TYPE 18 — image-flip-grid (2×2 flip cards)
+   =========================================== */
+    .flip-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 22px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Entrance animations — each card flies in from its corner */
+    .flip-card-wrap {
+      position: relative;
+      min-height: 0;
+      opacity: 0;
+      transition:
+        opacity 0.55s var(--ease-out-expo),
+        transform 0.55s var(--ease-out-expo);
+    }
+
+    .flip-grid .flip-card-wrap:nth-child(1) {
+      transform: translate(-36px, -36px) scale(0.92);
+    }
+
+    .flip-grid .flip-card-wrap:nth-child(2) {
+      transform: translate(36px, -36px) scale(0.92);
+    }
+
+    .flip-grid .flip-card-wrap:nth-child(3) {
+      transform: translate(-36px, 36px) scale(0.92);
+    }
+
+    .flip-grid .flip-card-wrap:nth-child(4) {
+      transform: translate(36px, 36px) scale(0.92);
+    }
+
+    .slide.visible .flip-grid .flip-card-wrap:nth-child(1) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.10s;
+    }
+
+    .slide.visible .flip-grid .flip-card-wrap:nth-child(2) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.24s;
+    }
+
+    .slide.visible .flip-grid .flip-card-wrap:nth-child(3) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.38s;
+    }
+
+    .slide.visible .flip-grid .flip-card-wrap:nth-child(4) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.52s;
+    }
+
+    /* 3D perspective container */
+    .flip-card {
+      width: 100%;
+      height: 100%;
+      perspective: 1800px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .flip-card:focus-visible .flip-card-inner {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    /* The rotating inner element */
+    .flip-card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      will-change: transform;
+      transition: transform 680ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    /* Shared face rules */
+    .flip-front,
+    .flip-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    /* ── Front face ── */
+    .flip-front {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* VMSOIT angular corner mark (CSS triangle — replaces clip-path which breaks 3D) */
+    .flip-front::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 3;
+      border-style: solid;
+      border-width: 0 32px 32px 0;
+      border-color: transparent var(--accent) transparent transparent;
+      transition: border-width 300ms ease;
+    }
+
+    .flip-card:not(.flipped):hover .flip-front::after {
+      border-width: 0 42px 42px 0;
+    }
+
+    .flip-card-wrap:hover .flip-front {
+      box-shadow: inset 0 0 0 2px rgba(255, 246, 0, 0.35);
+    }
+
+    .flip-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 450ms ease;
+    }
+
+    .flip-card:not(.flipped):hover .flip-front img {
+      transform: scale(1.05);
+    }
+
+    /* Image placeholder */
+    .flip-img-placeholder {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-tertiary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .flip-img-placeholder svg {
+      width: 52px;
+      height: 52px;
+      opacity: 0.18;
+    }
+
+    .flip-img-placeholder span {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.5px;
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    /* Gradient overlay over image */
+    .flip-front-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.3) 55%, transparent 100%);
+      padding: 22px 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .flip-front-label {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    /* "Click to flip" hint */
+    .flip-hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 250ms ease;
+    }
+
+    .flip-card:not(.flipped):hover .flip-hint {
+      opacity: 1;
+    }
+
+    .flip-hint svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ── Back face ── */
+    .flip-back {
+      transform: rotateY(180deg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 38px 46px;
+      gap: 14px;
+    }
+
+    .flip-back::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 85% 15%, rgba(255, 246, 0, 0.07), transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .flip-back::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 3;
+      border-style: solid;
+      border-width: 0 32px 32px 0;
+      border-color: transparent var(--accent) transparent transparent;
+    }
+
+    .flip-back-eyebrow {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      position: relative;
+      z-index: 1;
+    }
+
+    .flip-back-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 38px;
+      line-height: 1.08;
+      color: var(--text-primary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .flip-back-body {
+      font-family: var(--font-body);
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      position: relative;
+      z-index: 1;
+    }
+
+    .flip-back-divider {
+      width: 48px;
+      height: 2px;
+      background: var(--accent);
+      opacity: 0.5;
+      position: relative;
+      z-index: 1;
+      margin-top: auto;
+    }
+
+    .flip-back-hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-tertiary);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    .flip-back-hint svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ===========================================
+   TYPE 19 — image-flip-grid-2col (2 tall flip cards)
+   =========================================== */
+    .flip-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .flip-grid-2col .flip-card-wrap:nth-child(1) {
+      transform: translateX(-56px) scale(0.93);
+    }
+
+    .flip-grid-2col .flip-card-wrap:nth-child(2) {
+      transform: translateX(56px) scale(0.93);
+    }
+
+    .slide.visible .flip-grid-2col .flip-card-wrap:nth-child(1) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.10s;
+    }
+
+    .slide.visible .flip-grid-2col .flip-card-wrap:nth-child(2) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.28s;
+    }
+
+    /* Back face layout for tall 2-col variant */
+    .flip-back-2col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 52px 60px;
+      gap: 18px;
+    }
+
+    .flip-back-title-lg {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 52px;
+      line-height: 1.06;
+      color: var(--text-primary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .flip-back-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .flip-back-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-family: var(--font-body);
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .flip-back-list li svg {
+      width: 14px;
+      height: 11px;
+      flex: 0 0 auto;
+      margin-top: 5px;
+    }
+
+    .flip-back-list li b {
+      font-family: var(--font-label);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .flip-back-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===========================================
+   TYPE 20 — unord-pop (Unordered list + pop)
+   =========================================== */
+    .unord-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+    }
+
+    .unord-item {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 24px 32px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      clip-path: polygon(0 0, calc(100% - var(--cut-sm)) 0, 100% var(--cut-sm), 100% 100%, 0 100%);
+      cursor: pointer;
+      position: relative;
+      z-index: 6;
+      user-select: none;
+      opacity: 0;
+      transform: translateX(60px);
+      transition:
+        opacity 0.5s var(--ease-out-expo),
+        transform 0.5s var(--ease-out-expo),
+        background 220ms ease,
+        border-left-color 220ms ease,
+        box-shadow 350ms ease;
+    }
+
+    .slide.visible .unord-item:nth-child(1) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.08s;
+    }
+
+    .slide.visible .unord-item:nth-child(2) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.17s;
+    }
+
+    .slide.visible .unord-item:nth-child(3) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.26s;
+    }
+
+    .slide.visible .unord-item:nth-child(4) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.35s;
+    }
+
+    .slide.visible .unord-item:nth-child(5) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.44s;
+    }
+
+    .slide.visible .unord-item:nth-child(6) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.53s;
+    }
+
+    .slide.visible .unord-item:nth-child(7) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.62s;
+    }
+
+    .slide.visible .unord-item:nth-child(8) {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.71s;
+    }
+
+    .unord-wrap:not(.has-popped) .unord-item:hover {
+      background: var(--bg-tertiary);
+      border-left-color: var(--accent);
+    }
+
+    .unord-wrap.has-popped .unord-item:not(.popped) {
+      pointer-events: none;
+    }
+
+    .unord-bullet {
+      flex: 0 0 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .unord-bullet svg {
+      width: 28px;
+      height: 20px;
+      transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 300ms ease;
+    }
+
+    .unord-divider {
+      width: 2px;
+      height: 50px;
+      background: var(--border);
+      flex: 0 0 auto;
+      transition: background 220ms ease;
+    }
+
+    .unord-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .unord-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 26px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      transition: color 220ms ease;
+    }
+
+    .unord-desc {
+      font-family: var(--font-body);
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      transition: color 220ms ease;
+    }
+
+    .unord-detail {
+      font-family: var(--font-body);
+      font-size: 17px;
+      color: var(--text-tertiary);
+      line-height: 1.6;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      margin-top: 0;
+      transition: max-height 380ms ease, opacity 350ms ease, margin-top 350ms ease;
+    }
+
+    .unord-toggle {
+      flex: 0 0 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.35;
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+
+    .unord-item:hover .unord-toggle {
+      opacity: 0.7;
+    }
+
+    .unord-toggle svg {
+      width: 22px;
+      height: 22px;
+      transition: transform 350ms ease;
+    }
+
+    /* Popped state */
+    .unord-item.popped {
+      background: #141400;
+      border-left: 5px solid var(--accent);
+      z-index: 200;
+      box-shadow:
+        0 0 0 3000px rgba(10, 10, 0, 0.78),
+        0 40px 100px rgba(0, 0, 0, 0.95),
+        0 0 80px #fff60040,
+        0 0 0 1px var(--accent);
+    }
+
+    .unord-item.popped .unord-detail {
+      max-height: 160px;
+      opacity: 1;
+      margin-top: 12px;
+    }
+
+    .unord-item.popped .unord-title {
+      color: var(--accent);
+    }
+
+    .unord-item.popped .unord-desc {
+      color: var(--text-primary);
+    }
+
+    .unord-item.popped .unord-divider {
+      background: var(--accent);
+    }
+
+    .unord-item.popped .unord-bullet svg {
+      transform: scale(1.4);
+      filter: drop-shadow(0 0 8px #fff600aa);
+    }
+
+    .unord-item.popped .unord-toggle {
+      opacity: 1;
+    }
+
+    .unord-item.popped .unord-toggle svg {
+      transform: rotate(45deg);
+    }
+
+    .unord-hint-label {
+      position: absolute;
+      right: 72px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+
+    .unord-wrap:not(.has-popped) .unord-item:hover .unord-hint-label {
+      opacity: 1;
+    }
+
+    /* ===========================================
+   TYPE 21 — section-heading (ghost number)
+   =========================================== */
+    .sh-ghost {
+      position: absolute;
+      right: -30px;
+      top: 50%;
+      transform: translateY(-52%);
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 500px;
+      color: var(--accent);
+      opacity: 0.038;
+      line-height: 1;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.05em;
+    }
+
+    .sh-corner {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 120px 120px 0;
+      border-color: transparent rgba(255, 246, 0, 0.06) transparent transparent;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .sh-corner::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: -120px;
+      border-style: solid;
+      border-width: 0 60px 60px 0;
+      border-color: transparent var(--accent) transparent transparent;
+    }
+
+    .sh-stripe {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 340px;
+      height: 5px;
+      background: var(--accent);
+      transform-origin: left center;
+      transform: scaleX(0);
+      transition: transform 600ms var(--ease-out-expo);
+      z-index: 0;
+    }
+
+    .slide.visible .sh-stripe {
+      transform: scaleX(1);
+      transition-delay: 0.95s;
+    }
+
+    .sh-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sh-heading-wrap {
+      display: flex;
+      align-items: stretch;
+      gap: 30px;
+      margin-bottom: 26px;
+    }
+
+    .sh-bracket {
+      flex: 0 0 7px;
+      width: 7px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transform-origin: top center;
+      transition: transform 480ms var(--ease-out-expo);
+    }
+
+    .slide.visible .sh-bracket {
+      transform: scaleY(1);
+      transition-delay: 0.10s;
+    }
+
+    .sh-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 96px;
+      line-height: 0.97;
+      color: #ffffff;
+      letter-spacing: -0.025em;
+      clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+      transition: clip-path 620ms var(--ease-out-expo);
+    }
+
+    .slide.visible .sh-title {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition-delay: 0.15s;
+    }
+
+    .sh-line-wrap {
+      padding-left: 37px;
+      margin-bottom: 28px;
+    }
+
+    .sh-line {
+      height: 4px;
+      width: 0;
+      background: var(--accent);
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+      transition: width 450ms var(--ease-out-expo);
+    }
+
+    .slide.visible .sh-line {
+      width: 110px;
+      transition-delay: 0.75s;
+    }
+
+    .sh-desc-wrap {
+      padding-left: 37px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sh-desc {
+      font-family: var(--font-body);
+      font-size: 23px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      max-width: 1280px;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+    }
+
+    .slide.visible .sh-desc:nth-child(1) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.84s;
+    }
+
+    .slide.visible .sh-desc:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.96s;
+    }
+
+    .sh-meta {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 42px;
+      padding-left: 37px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+    }
+
+    .slide.visible .sh-meta {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 1.08s;
+    }
+
+    .sh-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px 32px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-right: none;
+    }
+
+    .sh-meta-item:first-child {
+      border-left: 3px solid var(--accent);
+    }
+
+    .sh-meta-item:last-child {
+      border-right: 1px solid var(--border);
+      clip-path: polygon(0 0, calc(100% - var(--cut-sm)) 0, 100% var(--cut-sm), 100% 100%, 0 100%);
+    }
+
+    .sh-meta-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-tertiary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .sh-meta-val {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
+    }
+
+    .sh-meta-item:first-child .sh-meta-val {
+      color: var(--accent);
+    }
+
+    .sh-meta-sep {
+      width: 1px;
+      height: 54px;
+      background: var(--border);
+    }
+
+    /* ===========================================
+   TYPE 22 — tabs-component
+   =========================================== */
+    .tabs-intro {
+      font-family: var(--font-body);
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 1600px;
+      margin-bottom: 16px;
+    }
+
+    .tabs-component {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Tab navigation */
+    .tab-nav {
+      display: flex;
+      position: relative;
+      border-bottom: 2px solid var(--border);
+      flex: 0 0 auto;
+      background: var(--bg-secondary);
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+    }
+
+    .tab-indicator {
+      position: absolute;
+      bottom: -2px;
+      height: 3px;
+      background: var(--accent);
+      z-index: 3;
+      pointer-events: none;
+      transition: left 320ms var(--ease-out-expo), width 320ms var(--ease-out-expo);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 20px 28px;
+      background: transparent;
+      border: none;
+      border-left: 1px solid var(--border);
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      transition: color 200ms ease, background 200ms ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab-btn:first-child {
+      border-left: none;
+    }
+
+    .tab-btn:hover:not(.tab-active) {
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.tab-active {
+      color: var(--accent);
+      background: var(--bg-primary);
+    }
+
+    /* Tab panels */
+    .tab-panels {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-top: none;
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
+    }
+
+    .tab-panel {
+      position: absolute;
+      inset: 0;
+      padding: 36px 52px;
+      display: grid;
+      grid-template-columns: 55% 1fr;
+      gap: 52px;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 320ms ease, transform 320ms ease;
+    }
+
+    .tab-panel.tab-panel-active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .tab-panel.no-img {
+      grid-template-columns: 1fr;
+    }
+
+    .tab-panel.no-img .tab-text {
+      max-width: 1300px;
+    }
+
+    /* Tab text content */
+    .tab-text {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tab-item-tag {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .tab-item-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 46px;
+      line-height: 1.06;
+      color: var(--text-primary);
+    }
+
+    .tab-item-body {
+      font-family: var(--font-body);
+      font-size: 20px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .tab-item-body ul {
+      list-style: none;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tab-item-body li {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .tab-item-body li svg {
+      width: 13px;
+      height: 10px;
+      flex: 0 0 auto;
+      margin-top: 6px;
+    }
+
+    .tab-item-body li b {
+      font-family: var(--font-label);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .tab-accent-line {
+      width: 56px;
+      height: 3px;
+      background: var(--accent);
+      clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%);
+    }
+
+    /* Tab image */
+    .tab-img-wrap {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      position: relative;
+      background: var(--bg-tertiary);
+    }
+
+    .tab-img-wrap::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 2;
+      border-style: solid;
+      border-width: 0 24px 24px 0;
+      border-color: transparent var(--accent) transparent transparent;
+    }
+
+    .tab-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .tab-img-placeholder {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .tab-img-placeholder svg {
+      width: 52px;
+      height: 52px;
+      opacity: 0.18;
+    }
+
+    .tab-img-placeholder span {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-tertiary);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .tab-img-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 16px;
+      background: rgba(16, 16, 16, 0.85);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.5px;
+      z-index: 3;
+    }
+
+    /* ===========================================
+   TYPE 23 — narrative-slider
+   =========================================== */
+    .narr-intro {
+      font-family: var(--font-body);
+      font-size: 20px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 1500px;
+      margin-bottom: 22px;
+    }
+
+    .narr-layout {
+      display: grid;
+      grid-template-columns: 780px 1fr;
+      gap: 52px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Left: image area */
+    .narr-img-area {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .narr-img-frame {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+      background: var(--bg-secondary);
+      min-height: 0;
+    }
+
+    .narr-img-frame::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 3;
+      border-style: solid;
+      border-width: 0 28px 28px 0;
+      border-color: transparent var(--accent) transparent transparent;
+    }
+
+    .narr-img-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 4;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--accent-ink);
+      background: var(--accent);
+      padding: 4px 12px;
+      letter-spacing: 1px;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+    }
+
+    /* Stacked crossfade images */
+    .narr-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 450ms ease;
+      z-index: 1;
+    }
+
+    .narr-img.narr-active {
+      opacity: 1;
+    }
+
+    .narr-img-placeholder {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      opacity: 0;
+      transition: opacity 450ms ease;
+    }
+
+    .narr-img-placeholder.narr-active {
+      opacity: 1;
+    }
+
+    .narr-img-placeholder svg {
+      width: 56px;
+      height: 56px;
+      opacity: 0.2;
+    }
+
+    .narr-img-placeholder span {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-tertiary);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* Navigation controls */
+    .narr-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 0 0 auto;
+    }
+
+    .narr-btn {
+      width: 52px;
+      height: 44px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      clip-path: polygon(0 0, calc(100% - var(--cut-sm)) 0, 100% var(--cut-sm), 100% 100%, 0 100%);
+      transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
+    }
+
+    .narr-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--bg-tertiary);
+      color: var(--accent);
+    }
+
+    .narr-btn:disabled {
+      opacity: 0.25;
+      cursor: default;
+    }
+
+    .narr-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .narr-indicators {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .narr-indicator {
+      height: 4px;
+      width: 32px;
+      background: var(--border);
+      cursor: pointer;
+      transition: width 300ms var(--ease-out-expo), background 250ms ease;
+      clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%);
+    }
+
+    .narr-indicator.narr-active {
+      width: 64px;
+      background: var(--accent);
+    }
+
+    .narr-counter {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      color: var(--text-tertiary);
+      letter-spacing: 1px;
+    }
+
+    /* Right: content area */
+    .narr-content-area {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+    }
+
+    .narr-item-tag {
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 320ms ease, transform 320ms ease;
+    }
+
+    .narr-accent-line {
+      width: 0;
+      height: 4px;
+      background: var(--accent);
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+      margin-bottom: 22px;
+      transition: width 380ms var(--ease-out-expo);
+    }
+
+    .narr-item-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 54px;
+      line-height: 1.06;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateX(24px);
+      transition: opacity 380ms ease, transform 380ms ease;
+    }
+
+    .narr-item-body {
+      font-family: var(--font-body);
+      font-size: 22px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 860px;
+      opacity: 0;
+      transform: translateX(24px);
+      transition: opacity 420ms ease 60ms, transform 420ms ease 60ms;
+    }
+
+    .narr-key-facts {
+      list-style: none;
+      padding: 0;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .narr-key-facts li {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      font-size: 19px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .narr-key-facts li svg {
+      width: 13px;
+      height: 10px;
+      flex: 0 0 auto;
+      margin-top: 5px;
+    }
+
+    .narr-key-facts li b {
+      color: var(--text-primary);
+      font-family: var(--font-label);
+      font-weight: 700;
+    }
+
+    /* Content state classes (JS-driven) */
+    .narr-content-area.narr-content-live .narr-item-tag {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .narr-content-area.narr-content-live .narr-accent-line {
+      width: 80px;
+    }
+
+    .narr-content-area.narr-content-live .narr-item-title {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .narr-content-area.narr-content-live .narr-item-body {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .narr-content-area.narr-content-exit .narr-item-tag {
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .narr-content-area.narr-content-exit .narr-accent-line {
+      width: 0;
+      transition: width 220ms var(--ease-out-expo);
+    }
+
+    .narr-content-area.narr-content-exit .narr-item-title {
+      opacity: 0;
+      transform: translateX(-24px);
+      transition: opacity 240ms ease, transform 240ms ease;
+    }
+
+    .narr-content-area.narr-content-exit .narr-item-body {
+      opacity: 0;
+      transform: translateX(-24px);
+      transition: opacity 240ms ease 20ms, transform 240ms ease 20ms;
+    }
+
+    /* ===========================================
+   DECK CONTROLS
+   =========================================== */
+    .deck-controls {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(16, 16, 16, 0.85);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      backdrop-filter: blur(6px);
+    }
+
+    .nav-btn {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .dot.active {
+      background: var(--accent);
+      transform: scale(1.3);
+    }
+
+    .counter {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-tertiary);
+      letter-spacing: 1px;
+      min-width: 48px;
+      text-align: center;
+    }
+
+    /* ===========================================
+   EDIT MODE
+   =========================================== */
+    .edit-hotzone {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: 80px;
+      z-index: 10000;
+      cursor: pointer;
+    }
+
+    .edit-toggle {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border);
+      background: rgba(16, 16, 16, 0.85);
+      color: var(--text-primary);
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .edit-toggle.show,
+    .edit-toggle.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .edit-toggle.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    [contenteditable="true"] {
+      outline: 1px dashed var(--accent);
+      outline-offset: 4px;
+      cursor: text;
+    }
+
+    /* ===========================================
+   PRINT
+   =========================================== */
+    @media print {
+
+      html,
+      body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+      }
+
+      .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+      }
+
+      .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+      }
+
+      .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+      }
+
+      .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+      }
+
+      .deck-controls {
+        display: none !important;
+      }
+    }
+
+    /* ===========================================
+   REDUCED MOTION
+   =========================================== */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Edit mode hotzone — hover top-left corner to reveal pencil button -->
+  <div class="edit-hotzone" id="editHotzone"></div>
+  <button class="edit-toggle" id="editToggle" title="Edit mode (E)">&#9998;</button>
+
+  <div class="deck-viewport">
+    <main class="deck-stage" id="deckStage">
+
+
+<section class="slide title-slide glow-tr active visible" id="slide-01">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <img class="big-logo reveal" src="vmsoit-logo.png" alt="VMSOIT" />
+
+    <p class="eyebrow reveal">
+      <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+      CompTIA A+ Core 1 · 220-1201 (V15)
+    </p>
+
+    <h1 class="reveal">Mobile Device Hardware</h1>
+
+    <p class="sub reveal">Objective 1.1 — Install and Configure Laptop Hardware and Components</p>
+
+    <p class="tagline reveal">Connectors, batteries, storage, and displays — the physical building blocks of every mobile device.</p>
+
+  </div>
+</section>
+
+<section class="slide" id="slide-02">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Agenda
+  <span class="idx">&nbsp;&middot;&nbsp; 02</span>
+</p>
+
+    <h2 class="title reveal">What We'll Cover</h2>
+
+    <div class="agenda-layout">
+
+      <div>
+        <div class="agenda-item">
+          <span class="agenda-num">01</span>
+          <div>
+            <div class="agenda-title">Connection Methods</div>
+            <div class="agenda-sub">Wired and wireless ways mobile devices link to peripherals</div>
+          </div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-num">02</span>
+          <div>
+            <div class="agenda-title">Mobile Device Accessories</div>
+            <div class="agenda-sub">Headsets, speakers, controllers, and drawing pads</div>
+          </div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-num">03</span>
+          <div>
+            <div class="agenda-title">Battery Replacement</div>
+            <div class="agenda-sub">Safe removal and replacement procedure, step by step</div>
+          </div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-num">04</span>
+          <div>
+            <div class="agenda-title">SIM Cards & Storage</div>
+            <div class="agenda-sub">Physical SIM sizes, eSIM, and mobile storage expansion</div>
+          </div>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-num">05</span>
+          <div>
+            <div class="agenda-title">Displays</div>
+            <div class="agenda-sub">LCD vs OLED panel technology and digitizers</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="agenda-deco reveal">
+        <div class="agenda-deco-card dc-accent cut">
+          <div class="dc-tag">Topics</div>
+          <div class="dc-val">5</div>
+        </div>
+        <div class="agenda-deco-card cut">
+          <div class="dc-tag">Est. Time</div>
+          <div class="dc-val">25 min</div>
+        </div>
+        <div class="agenda-deco-card cut">
+          <div class="dc-tag">Exam Weight</div>
+          <div class="dc-val">High</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-03">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Exam Objectives
+  <span class="idx">&nbsp;&middot;&nbsp; 03</span>
+</p>
+
+    <h2 class="title reveal">What This Objective Covers</h2>
+
+    <div class="topic-cols">
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>USB-A, USB-C, and USB4 connector standards and speeds</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>Bluetooth and NFC wireless pairing methods</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>Lightning and proprietary charging connectors</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>Battery types, safety, and replacement procedure</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>Standard SIM, microSIM, nanoSIM, and eSIM</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>MicroSD and expandable mobile storage</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>LCD, OLED, and AMOLED display technology</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>Digitizers and touchscreen replacement</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>Mobile device accessories and peripherals</span>
+      </div>
+      <div class="topic-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <span>Docking stations and port replicators</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide major-heading-slide glow-tr" id="slide-04">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Section 01
+  <span class="idx">&nbsp;&middot;&nbsp; 04</span>
+</p>
+
+    <div class="mh-layout">
+
+      <div class="mh-left reveal">
+        <div class="mh-title-wrap">
+          <div class="mh-bar"></div>
+          <h2 class="mh-title">Connection Methods</h2>
+        </div>
+        <p class="mh-para">Mobile devices communicate with peripherals and networks through both wired and wireless connection methods.</p>
+        <p class="mh-para">Knowing the speed, range, and use case of each method is a common source of exam scenario questions.</p>
+      </div>
+
+      <div class="mh-right reveal">
+        <div class="mh-accent-card cut">
+          <div class="mh-big-num">01</div>
+          <div class="mh-accent-lbl">Section</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-05">
+
+  <div class="sh-ghost" aria-hidden="true">01</div>
+  <div class="sh-corner" aria-hidden="true"></div>
+  <div class="sh-stripe" aria-hidden="true"></div>
+
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Section 01
+  <span class="idx">&nbsp;&middot;&nbsp; 05</span>
+</p>
+
+    <div class="sh-content">
+
+      <div class="sh-heading-wrap">
+        <div class="sh-bracket"></div>
+        <h2 class="sh-title">Wired vs Wireless</h2>
+      </div>
+
+      <div class="sh-line-wrap">
+        <div class="sh-line"></div>
+      </div>
+
+      <div class="sh-desc-wrap">
+        <p class="sh-desc">Wired connections (USB, proprietary chargers) offer the fastest, most reliable data transfer and charging.</p>
+        <p class="sh-desc">Wireless connections (Bluetooth, NFC, Wi-Fi) trade some speed and reliability for convenience and range.</p>
+      </div>
+
+      <div class="sh-meta">
+        <div class="sh-meta-item">
+          <span class="sh-meta-label">Slides in Section</span>
+          <span class="sh-meta-val">5</span>
+        </div>
+<div class="sh-meta-sep"></div>        <div class="sh-meta-item">
+          <span class="sh-meta-label">Focus</span>
+          <span class="sh-meta-val">Connectors</span>
+        </div>
+<div class="sh-meta-sep"></div>        <div class="sh-meta-item">
+          <span class="sh-meta-label">Exam Weight</span>
+          <span class="sh-meta-val">High</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide minor-heading-slide" id="slide-06">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  1.1.1
+  <span class="idx">&nbsp;&middot;&nbsp; 06</span>
+</p>
+
+    <div class="mnh-layout">
+
+      <div class="mnh-left">
+        <h3 class="mnh-title">USB Standards</h3>
+        <p class="mnh-para">USB is the dominant standard for both charging and data transfer on modern mobile devices.</p>
+        <p class="mnh-para">Connector shape (Type-A, Type-C) is independent of the underlying USB version and its data speed.</p>
+      </div>
+
+      <div class="mnh-accent-card cut reveal">
+        <div class="ac-label">Key Points</div>
+        <div class="ac-point">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+          USB-C is reversible and supports higher power delivery (up to 240W with USB PD 3.1)
+        </div>
+        <div class="ac-point">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+          USB4 runs over a USB-C connector and can reach 40 Gbps
+        </div>
+        <div class="ac-point">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+          USB 3.2 Gen 2x2 reaches 20 Gbps over USB-C
+        </div>
+        <div class="ac-point">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+          Connector shape does not guarantee a specific USB version
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-07">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Connectors
+  <span class="idx">&nbsp;&middot;&nbsp; 07</span>
+</p>
+
+    <h2 class="title reveal">USB Connector Types</h2>
+
+    <div class="bullet-cols">
+      <div class="bullet-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <div>
+          <div class="bi-label">USB-A</div>
+          <div class="bi-sub">Standard rectangular connector, not reversible, found on older chargers and hubs</div>
+        </div>
+      </div>
+      <div class="bullet-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <div>
+          <div class="bi-label">USB-C</div>
+          <div class="bi-sub">Reversible oval connector, supports high-speed data and up to 240W power delivery</div>
+        </div>
+      </div>
+      <div class="bullet-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <div>
+          <div class="bi-label">Micro-USB</div>
+          <div class="bi-sub">Legacy small connector, still found on budget accessories and some older Android devices</div>
+        </div>
+      </div>
+      <div class="bullet-item">
+        <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        <div>
+          <div class="bi-label">Lightning</div>
+          <div class="bi-sub">Apple's proprietary 8-pin connector used on iPhone and iPad prior to USB-C adoption</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-08">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Procedure
+  <span class="idx">&nbsp;&middot;&nbsp; 08</span>
+</p>
+
+    <h2 class="title reveal">Mobile Battery Replacement</h2>
+
+    <div class="steps-wrap">
+      <div class="step-row">
+        <span class="step-num">01</span>
+        <div class="step-divider"></div>
+        <div>
+          <div class="step-title">Power Off the Device Completely</div>
+          <div class="step-desc">Never work on a battery while the device is powered on or charging.</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">02</span>
+        <div class="step-divider"></div>
+        <div>
+          <div class="step-title">Remove the Back Cover</div>
+          <div class="step-desc">Use a plastic pry tool or suction cup — never a metal screwdriver. Heat may be needed on glued assemblies.</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">03</span>
+        <div class="step-divider"></div>
+        <div>
+          <div class="step-title">Disconnect the Battery Connector</div>
+          <div class="step-desc">Lift the ZIF connector tab straight up. Never pull by the cable ribbon — always disconnect from the socket end.</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">04</span>
+        <div class="step-divider"></div>
+        <div>
+          <div class="step-title">Remove and Replace the Battery</div>
+          <div class="step-desc">Use a plastic spudger to lift the battery. Insert the replacement, reconnect the connector, and press firmly to seat it.</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">05</span>
+        <div class="step-divider"></div>
+        <div>
+          <div class="step-title">Reassemble and Test</div>
+          <div class="step-desc">Reattach the back cover, power on the device, and verify the battery charges and reports the correct capacity.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-09">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Mobile Accessories
+  <span class="idx">&nbsp;&middot;&nbsp; 09</span>
+</p>
+
+    <h2 class="title reveal">Common Accessories — Click to Expand</h2>
+
+    <div class="unord-wrap" data-pop-wrap>
+      <div class="unord-item">
+        <div class="unord-bullet">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        </div>
+        <div class="unord-divider"></div>
+        <div class="unord-content">
+          <div class="unord-title">Headsets & Earbuds</div>
+          <div class="unord-desc">Wired (3.5 mm / USB-C) and wireless (Bluetooth) audio accessories</div>
+          <div class="unord-detail">Wired headsets connect via the 3.5 mm audio jack or USB-C. Wireless earbuds use Bluetooth pairing. Exam tip: USB-C headsets require no audio jack and can carry digital audio — the device handles D/A conversion, not the headset.</div>
+        </div>
+        <span class="unord-hint-label">expand</span>
+        <div class="unord-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2.5" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </div>
+      </div>
+      <div class="unord-item">
+        <div class="unord-bullet">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        </div>
+        <div class="unord-divider"></div>
+        <div class="unord-content">
+          <div class="unord-title">Speakers</div>
+          <div class="unord-desc">Portable speakers connect via Bluetooth or 3.5 mm audio jack</div>
+          <div class="unord-detail">Bluetooth speakers pair once and reconnect automatically. 3.5 mm speakers require no pairing but are limited by cable length. Exam tip: Bluetooth uses the ISM 2.4 GHz band and can experience interference from Wi-Fi on the same frequency.</div>
+        </div>
+        <span class="unord-hint-label">expand</span>
+        <div class="unord-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2.5" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </div>
+      </div>
+      <div class="unord-item">
+        <div class="unord-bullet">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        </div>
+        <div class="unord-divider"></div>
+        <div class="unord-content">
+          <div class="unord-title">Game Controllers</div>
+          <div class="unord-desc">Bluetooth or USB-C controllers for mobile gaming on phones and tablets</div>
+          <div class="unord-detail">Mobile game controllers clip around the phone or connect via Bluetooth. Some connect through USB-C for zero-latency input. Exam tip: these are standard HID (Human Interface Device) class devices — no special driver is needed on modern mobile OSes.</div>
+        </div>
+        <span class="unord-hint-label">expand</span>
+        <div class="unord-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2.5" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </div>
+      </div>
+      <div class="unord-item">
+        <div class="unord-bullet">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+        </div>
+        <div class="unord-divider"></div>
+        <div class="unord-content">
+          <div class="unord-title">Drawing Pads</div>
+          <div class="unord-desc">Stylus-based input pads for digital art and note-taking on tablets</div>
+          <div class="unord-detail">Drawing pads use electromagnetic resonance (EMR) or capacitive stylus technology. EMR styli require no battery — the pad sends power to the pen. Active stylus types (like Apple Pencil) do require charging. Exam tip: EMR pads do not respond to finger touch — stylus only.</div>
+        </div>
+        <span class="unord-hint-label">expand</span>
+        <div class="unord-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2.5" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-10">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Concept
+  <span class="idx">&nbsp;&middot;&nbsp; 10</span>
+</p>
+
+    <h2 class="title reveal">What Is eSIM?</h2>
+
+    <div class="expl-layout">
+
+      <div class="expl-left reveal">
+        <p class="expl-para">An eSIM (embedded SIM) is a carrier profile provisioned directly onto a chip soldered to the device's motherboard, rather than a removable physical card.</p>
+        <p class="expl-para">Because there's no physical card to swap, switching carriers is done entirely through software — often by scanning a QR code the carrier provides.</p>
+      </div>
+
+      <div class="expl-right-card">
+        <div class="er-label">Exam Takeaways</div>
+        <div class="er-point">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+          eSIM requires no physical card slot
+        </div>
+        <div class="er-point">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+          Carrier profiles are provisioned over the network
+        </div>
+        <div class="er-point">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+          Many modern phones support dual-SIM via one physical SIM plus one eSIM
+        </div>
+        <div class="er-point">
+          <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+          eSIM cannot be physically removed if you switch devices
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-11">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Hardware Components
+  <span class="idx">&nbsp;&middot;&nbsp; 11</span>
+</p>
+
+    <div class="expl-img-layout">
+
+      <div class="expl-img-left reveal">
+        <h2 class="ei-title">SIM Card Types</h2>
+        <p class="ei-para">A SIM (Subscriber Identity Module) card stores the credentials that identify a phone to the cellular network. The physical size of the SIM has shrunk over generations while its function has remained unchanged.</p>
+        <p class="ei-para">Standard SIM, microSIM, and nanoSIM all carry the same gold contact chip — only the plastic frame around it differs. eSIM is embedded directly onto the motherboard, requiring no physical card at all.</p>
+      </div>
+
+      <div>
+        <div class="img-box">
+          <div class="img-placeholder">&#128247; Replace with an image</div>
+        </div>
+        <p class="img-caption">Fig 1 — SIM card form factors: Standard · microSIM · nanoSIM · eSIM</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide bg-image-slide" id="slide-12">
+
+  <div class="bg-img-wrap">
+    <img src="usb-image.jpg" alt="" />
+  </div>
+
+  <div class="slide-inner">
+    <p class="eyebrow reveal">
+      <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+      USB Standards
+      <span class="idx">&nbsp;&middot;&nbsp; 12</span>
+    </p>
+
+    <div class="bi-overlay reveal">
+      <h2 class="bi-title">USB Is Everywhere</h2>
+      <p class="bi-body">From charging cables to external storage to docking stations — USB is the single most common connector you'll troubleshoot on any mobile device service call.</p>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-13">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Compare
+  <span class="idx">&nbsp;&middot;&nbsp; 13</span>
+</p>
+
+    <h2 class="title reveal">Standard SIM vs eSIM</h2>
+
+    <div class="cmp2-layout">
+
+      <div class="cmp-card col-yellow from-left">
+        <div class="cmp-head">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#FFF600">
+  <path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z" />
+</svg>          Physical SIM
+        </div>
+        <div class="cmp-body">
+          <ul>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Removable — can be moved between devices instantly</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>No carrier software setup required</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Vulnerable to being lost or physically damaged</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Requires a SIM ejector tool to remove</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cmp-card col-red from-right">
+        <div class="cmp-head">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#D7263D">
+  <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" />
+</svg>          eSIM
+        </div>
+        <div class="cmp-body">
+          <ul>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#D7263D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Cannot be physically removed or swapped</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#D7263D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Activated via QR code or carrier app</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#D7263D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Immune to physical card damage or loss</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#D7263D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Not yet supported on every carrier or device</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-14">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Compare
+  <span class="idx">&nbsp;&middot;&nbsp; 14</span>
+</p>
+
+    <h2 class="title reveal">Mobile Storage Options</h2>
+
+    <div class="cmp3-layout">
+      <div class="cmp-card col-neutral from-bottom">
+        <div class="cmp-head">Internal (eMMC)</div>
+        <div class="cmp-body">
+          <ul>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#9A9A9A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Fixed, non-removable storage</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#9A9A9A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Lower cost, slower speeds</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#9A9A9A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Common in budget devices</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="cmp-card col-center from-bottom">
+        <div class="cmp-head">Internal (UFS / NVMe)</div>
+        <div class="cmp-body">
+          <ul>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Fixed, non-removable storage</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>High-speed, found in flagship devices</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Cannot be expanded after purchase</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="cmp-card col-yellow from-bottom">
+        <div class="cmp-head">MicroSD</div>
+        <div class="cmp-body">
+          <ul>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Removable, expandable storage</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Speed varies widely by card class</span>
+            </li>
+            <li>
+              <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+              <span>Being phased out on many flagship phones</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-15">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Reference
+  <span class="idx">&nbsp;&middot;&nbsp; 15</span>
+</p>
+
+    <h2 class="title reveal">USB Standards & Speeds</h2>
+
+    <div class="table-wrap reveal">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Standard</th>
+            <th>Max Speed</th>
+            <th>Connector</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>USB 2.0</td>
+            <td>480 Mbps</td>
+            <td>USB-A / Micro-USB</td>
+            <td>Still common on budget accessories</td>
+          </tr>
+          <tr>
+            <td>USB 3.2 Gen 1</td>
+            <td>5 Gbps</td>
+            <td>USB-A / USB-C</td>
+            <td>Formerly called USB 3.0</td>
+          </tr>
+          <tr>
+            <td>USB 3.2 Gen 2x2</td>
+            <td>20 Gbps</td>
+            <td>USB-C only</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="td-accent">USB4</td>
+            <td>40 Gbps</td>
+            <td>USB-C only</td>
+            <td>Built on Thunderbolt 3 protocol</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide note-slide" id="slide-16">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Safety
+  <span class="idx">&nbsp;&middot;&nbsp; 16</span>
+</p>
+
+    <div class="note-card note-danger">
+      <div class="note-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#D7263D">
+          <path d="M236.8,188.09,149.35,36.22a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM120,104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,88a12,12,0,1,1,12-12A12,12,0,0,1,128,192Z" />
+        </svg>
+      </div>
+      <div class="note-body-wrap">
+        <div class="note-label">Exam Trap</div>
+        <div class="note-headline">Never Use a Metal Tool Near a Battery</div>
+        <p class="note-detail">Puncturing or shorting a lithium-ion battery with a metal screwdriver or spudger can cause it to swell, overheat, or ignite. Always use plastic prying tools when opening a mobile device, and immediately stop work if a battery appears swollen.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-17">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Watch
+  <span class="idx">&nbsp;&middot;&nbsp; 17</span>
+</p>
+
+    <div class="video-layout">
+
+      <div class="video-left reveal">
+        <div class="vl-title">USB-C Explained in 5 Minutes</div>
+        <p class="vl-desc">A quick visual walkthrough of USB-C connector pinouts, power delivery negotiation, and why 'USB-C' alone doesn't tell you the data speed.</p>
+        <div class="vl-tips">
+          <div class="vl-tip">
+            <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+            Watch at 1x speed and pause on the pinout diagram
+          </div>
+          <div class="vl-tip">
+            <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+            Compare against the USB standards table on the previous slide
+          </div>
+          <div class="vl-tip">
+            <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+            Note how USB-C is a connector shape, not a speed guarantee
+          </div>
+        </div>
+      </div>
+
+      <div class="video-box">
+        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1"
+          title="USB-C Explained in 5 Minutes"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-18" data-tabs-slide>
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Wireless
+  <span class="idx">&nbsp;&middot;&nbsp; 18</span>
+</p>
+
+    <h2 class="title reveal">Wireless Connection Methods</h2>
+
+    <p class="tabs-intro reveal">Mobile devices use several short-range wireless standards, each suited to a different use case. Click a tab to explore each one.</p>
+
+    <div class="tabs-component reveal" data-tabs-root>
+
+      <div class="tab-nav" data-tabs-nav>
+        <div class="tab-indicator" data-tabs-indicator></div>
+        <button class="tab-btn" data-index="0">Bluetooth</button>
+        <button class="tab-btn" data-index="1">NFC</button>
+        <button class="tab-btn" data-index="2">Wi-Fi Direct</button>
+      </div>
+
+      <div class="tab-panels" data-tabs-panels>
+        <div class="tab-panel" data-index="0">
+          <div class="tab-text">
+            <div class="tab-item-tag">Method 01</div>
+            <div class="tab-accent-line"></div>
+            <div class="tab-item-title">Bluetooth</div>
+            <div class="tab-item-body">
+              <p>Bluetooth is a short-range wireless standard operating in the 2.4 GHz ISM band, used for headsets, keyboards, speakers, and file transfer.</p>
+              <ul>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Typical range: 10 meters (Class 2)</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Requires a one-time pairing process</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Can experience interference from Wi-Fi on the same band</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="tab-img-wrap">
+            <div class="tab-img-placeholder">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+              <span>Add bluetooth image here</span>
+            </div>
+          </div>
+        </div>
+        <div class="tab-panel" data-index="1">
+          <div class="tab-text">
+            <div class="tab-item-tag">Method 02</div>
+            <div class="tab-accent-line"></div>
+            <div class="tab-item-title">Near Field Communication</div>
+            <div class="tab-item-body">
+              <p>NFC operates at a very short range — typically under 4 cm — and is used for contactless payments and quick pairing.</p>
+              <ul>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>No manual pairing required — just tap</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Used for Apple Pay, Google Pay, and transit cards</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Much lower data rate than Bluetooth</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="tab-img-wrap">
+            <div class="tab-img-placeholder">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+              <span>Add near field communication image here</span>
+            </div>
+          </div>
+        </div>
+        <div class="tab-panel" data-index="2">
+          <div class="tab-text">
+            <div class="tab-item-tag">Method 03</div>
+            <div class="tab-accent-line"></div>
+            <div class="tab-item-title">Wi-Fi Direct</div>
+            <div class="tab-item-body">
+              <p>Wi-Fi Direct lets two devices connect peer-to-peer using Wi-Fi hardware, without a router, at much higher speeds than Bluetooth.</p>
+              <ul>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Used for screen mirroring and fast file transfer</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Higher power draw than Bluetooth</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="tab-img-wrap">
+            <div class="tab-img-placeholder">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+              <span>Add wi-fi direct image here</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-19" data-narrative-slide>
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Replacement Tools
+  <span class="idx">&nbsp;&middot;&nbsp; 19</span>
+</p>
+
+    <h2 class="title reveal">Mobile Repair Tool Kit</h2>
+
+    <p class="narr-intro reveal">Safe mobile device repair requires the right tools. Using the wrong tool — especially metal on plastic clips — causes damage that voids warranties and fails the exam scenario. Click the arrows to explore each essential tool.</p>
+
+    <div class="narr-layout" data-narrative-root>
+
+      <div class="narr-img-area">
+
+        <div class="narr-img-frame">
+          <div class="narr-img-badge" data-narr-badge>1 / 4</div>
+
+          <div class="narr-img-placeholder narr-active" data-index="0"
+            data-tag="Tool 01 of 04" data-title="Plastic Spudger" data-body="A flat, plastic prying tool used to disconnect battery connectors and pry open plastic clips without scratching the case or shorting components.">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+            <span>Plastic Spudger</span>
+          </div>
+          <div class="narr-img-placeholder" data-index="1"
+            data-tag="Tool 02 of 04" data-title="Suction Cup" data-body="Used to lift glued glass screens and back panels away from the chassis without cracking them.">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+            <span>Suction Cup</span>
+          </div>
+          <div class="narr-img-placeholder" data-index="2"
+            data-tag="Tool 03 of 04" data-title="Precision Screwdriver Set" data-body="Mobile devices use very small proprietary screws (Torx, Pentalobe) — a standard screwdriver will strip them instantly.">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+            <span>Precision Screwdriver Set</span>
+          </div>
+          <div class="narr-img-placeholder" data-index="3"
+            data-tag="Tool 04 of 04" data-title="Heat Gun / Heat Pad" data-body="Softens the adhesive holding glued screens and covers in place, making removal safer and reducing the risk of cracking.">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+            <span>Heat Gun / Heat Pad</span>
+          </div>
+        </div>
+
+        <div class="narr-controls">
+
+          <button class="narr-btn" data-narr-prev aria-label="Previous item" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          <div style="display:flex; align-items:center; gap:20px;">
+            <div class="narr-indicators" data-narr-indicators>
+              <div class="narr-indicator narr-active" data-index="0"></div>
+              <div class="narr-indicator" data-index="1"></div>
+              <div class="narr-indicator" data-index="2"></div>
+              <div class="narr-indicator" data-index="3"></div>
+            </div>
+            <span class="narr-counter" data-narr-counter>1 / 4</span>
+          </div>
+
+          <button class="narr-btn" data-narr-next aria-label="Next item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+
+        </div>
+      </div>
+
+      <div class="narr-content-area narr-content-live" data-narr-content>
+        <div class="narr-item-tag" data-narr-tag>Tool 01 of 04</div>
+        <div class="narr-accent-line"></div>
+        <div class="narr-item-title" data-narr-title>Plastic Spudger</div>
+        <div class="narr-item-body" data-narr-body>
+          <p>A flat, plastic prying tool used to disconnect battery connectors and pry open plastic clips without scratching the case or shorting components.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-20">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Connectors
+  <span class="idx">&nbsp;&middot;&nbsp; 20</span>
+</p>
+
+    <h2 class="title reveal">Charging Connectors — Click to Compare</h2>
+
+    <div class="flip-grid">
+      <div class="flip-card-wrap">
+        <div class="flip-card" data-flip-card tabindex="0" aria-label="USB-C flip card">
+          <div class="flip-card-inner">
+            <div class="flip-front">
+              <div class="flip-img-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+                <span>USB-C</span>
+              </div>
+              <div class="flip-front-overlay">
+                <span class="flip-front-label">USB-C</span>
+                <span class="flip-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 4v6h6" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.07" />
+                  </svg>
+                  flip
+                </span>
+              </div>
+            </div>
+            <div class="flip-back">
+              <span class="flip-back-eyebrow">Connector 01</span>
+              <div class="flip-back-title">USB-C</div>
+              <p class="flip-back-body">Reversible, high-speed, supports up to 240W power delivery. The current industry standard across nearly all device types.</p>
+              <div class="flip-back-divider"></div>
+              <span class="flip-back-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 4v6h-6" />
+                  <path d="M20.49 15a9 9 0 1 1-.49-4.07" />
+                </svg>
+                click to flip back
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card-wrap">
+        <div class="flip-card" data-flip-card tabindex="0" aria-label="Lightning flip card">
+          <div class="flip-card-inner">
+            <div class="flip-front">
+              <div class="flip-img-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+                <span>Lightning</span>
+              </div>
+              <div class="flip-front-overlay">
+                <span class="flip-front-label">Lightning</span>
+                <span class="flip-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 4v6h6" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.07" />
+                  </svg>
+                  flip
+                </span>
+              </div>
+            </div>
+            <div class="flip-back">
+              <span class="flip-back-eyebrow">Connector 02</span>
+              <div class="flip-back-title">Lightning</div>
+              <p class="flip-back-body">Apple's proprietary 8-pin reversible connector, used on iPhone and iPad models prior to the USB-C transition.</p>
+              <div class="flip-back-divider"></div>
+              <span class="flip-back-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 4v6h-6" />
+                  <path d="M20.49 15a9 9 0 1 1-.49-4.07" />
+                </svg>
+                click to flip back
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card-wrap">
+        <div class="flip-card" data-flip-card tabindex="0" aria-label="Micro-USB flip card">
+          <div class="flip-card-inner">
+            <div class="flip-front">
+              <div class="flip-img-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+                <span>Micro-USB</span>
+              </div>
+              <div class="flip-front-overlay">
+                <span class="flip-front-label">Micro-USB</span>
+                <span class="flip-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 4v6h6" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.07" />
+                  </svg>
+                  flip
+                </span>
+              </div>
+            </div>
+            <div class="flip-back">
+              <span class="flip-back-eyebrow">Connector 03</span>
+              <div class="flip-back-title">Micro-USB</div>
+              <p class="flip-back-body">Legacy non-reversible connector, still found on budget accessories, chargers, and some older peripherals.</p>
+              <div class="flip-back-divider"></div>
+              <span class="flip-back-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 4v6h-6" />
+                  <path d="M20.49 15a9 9 0 1 1-.49-4.07" />
+                </svg>
+                click to flip back
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card-wrap">
+        <div class="flip-card" data-flip-card tabindex="0" aria-label="MagSafe flip card">
+          <div class="flip-card-inner">
+            <div class="flip-front">
+              <div class="flip-img-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+                <span>MagSafe</span>
+              </div>
+              <div class="flip-front-overlay">
+                <span class="flip-front-label">MagSafe</span>
+                <span class="flip-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 4v6h6" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.07" />
+                  </svg>
+                  flip
+                </span>
+              </div>
+            </div>
+            <div class="flip-back">
+              <span class="flip-back-eyebrow">Connector 04</span>
+              <div class="flip-back-title">MagSafe</div>
+              <p class="flip-back-body">A magnetically-aligned wireless charging standard from Apple, built on the Qi wireless charging standard with added alignment magnets.</p>
+              <div class="flip-back-divider"></div>
+              <span class="flip-back-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 4v6h-6" />
+                  <path d="M20.49 15a9 9 0 1 1-.49-4.07" />
+                </svg>
+                click to flip back
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide" id="slide-21">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="eyebrow reveal">
+  <svg class="chev" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+  Visual Comparison
+  <span class="idx">&nbsp;&middot;&nbsp; 21</span>
+</p>
+
+    <h2 class="title reveal">LCD vs OLED — Click to Compare</h2>
+
+    <div class="flip-grid-2col">
+      <div class="flip-card-wrap">
+        <div class="flip-card" data-flip-card tabindex="0" aria-label="LCD Display flip card">
+          <div class="flip-card-inner">
+
+            <div class="flip-front">
+              <div class="flip-img-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+                <span>LCD Display</span>
+              </div>
+              <div class="flip-front-overlay">
+                <span class="flip-front-label">LCD Display</span>
+                <span class="flip-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 4v6h6" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.07" />
+                  </svg>
+                  flip
+                </span>
+              </div>
+            </div>
+
+            <div class="flip-back flip-back-2col">
+              <span class="flip-back-eyebrow">Display Type 01</span>
+              <div class="flip-back-title-lg">LCD</div>
+              <p class="flip-back-body" style="position:relative;z-index:1;">Liquid Crystal Display uses a constant backlight behind a liquid crystal layer. Cannot produce true black — used widely in budget and mid-range devices.</p>
+              <ul class="flip-back-list">
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Backlight always on — dark grey, not true black</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>IPS panels offer wide viewing angles and accurate colour</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>More durable — less susceptible to burn-in than OLED</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Thicker — requires space for the backlight layer</span>
+                </li>
+              </ul>
+              <div class="flip-back-foot">
+                <div class="flip-back-divider" style="margin-top:0;"></div>
+                <span class="flip-back-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6" />
+                    <path d="M20.49 15a9 9 0 1 1-.49-4.07" />
+                  </svg>
+                  click to flip back
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="flip-card-wrap">
+        <div class="flip-card" data-flip-card tabindex="0" aria-label="OLED Display flip card">
+          <div class="flip-card-inner">
+
+            <div class="flip-front">
+              <div class="flip-img-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+  <path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.72,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.44l13.62,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z" />
+</svg>
+                <span>OLED Display</span>
+              </div>
+              <div class="flip-front-overlay">
+                <span class="flip-front-label">OLED Display</span>
+                <span class="flip-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#FFF600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 4v6h6" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.07" />
+                  </svg>
+                  flip
+                </span>
+              </div>
+            </div>
+
+            <div class="flip-back flip-back-2col">
+              <span class="flip-back-eyebrow">Display Type 02</span>
+              <div class="flip-back-title-lg">OLED</div>
+              <p class="flip-back-body" style="position:relative;z-index:1;">Organic Light-Emitting Diode panels light each pixel individually — no backlight needed. Produces true blacks and higher contrast than LCD.</p>
+              <ul class="flip-back-list">
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Each pixel emits its own light — true blacks</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Thinner and more power-efficient on dark content</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Susceptible to burn-in with static images over time</span>
+                </li>
+                <li>
+                  <svg class="" viewBox="0 0 24 16" fill="none">
+  <path d="M2 2L12 12L22 2" stroke="#FFF600" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+                  <span>Standard on flagship phones and premium tablets</span>
+                </li>
+              </ul>
+              <div class="flip-back-foot">
+                <div class="flip-back-divider" style="margin-top:0;"></div>
+                <span class="flip-back-hint">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6" />
+                    <path d="M20.49 15a9 9 0 1 1-.49-4.07" />
+                  </svg>
+                  click to flip back
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+  <span class="fb-logo"><img src="vmsoit-logo.png" alt="" />VMSOIT</span>
+  <span>Mobile Device Hardware</span>
+</div>
+</section>
+
+<section class="slide cta-slide glow-tr" id="slide-22">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <h1 class="cta-heading reveal">Ready for the Next Objective?</h1>
+
+    <p class="cta-sub reveal">You've covered mobile device hardware — connectors, batteries, SIM cards, storage, and displays.</p>
+
+    <div class="cta-cards">
+      <div class="cta-card cc-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#FFF600">
+          <path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.63-16h45.26A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"/>
+        </svg>
+        <div class="cc-label">Subscribe</div>
+      </div>
+      <div class="cta-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+          <path d="M234,80.12A24,24,0,0,0,216,72H160V56a40,40,0,0,0-40-40,8,8,0,0,0-7.16,4.42L75.06,96H32a16,16,0,0,0-16,16v88a16,16,0,0,0,16,16H204a24,24,0,0,0,23.82-21l12-96A24,24,0,0,0,234,80.12ZM32,112H72v88H32Zm191.94,1.48-12,96A8,8,0,0,1,204,216H88V105.89l36.71-73.43A24,24,0,0,1,144,56V80a8,8,0,0,0,8,8h64a8,8,0,0,1,7.94,9.48Z"/>
+        </svg>
+        <div class="cc-label">Like</div>
+      </div>
+      <div class="cta-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+          <path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216Z"/>
+        </svg>
+        <div class="cc-label">Comment</div>
+      </div>
+      <div class="cta-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+          <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"/>
+        </svg>
+        <div class="cc-label">Join Community</div>
+      </div>
+    </div>
+
+    <p class="cta-tagline reveal">Up next: Objective 1.2 — Mobile Device Accessories and Ports</p>
+
+  </div>
+</section>
+
+<section class="slide outro-slide" id="slide-23">
+  <img class="watermark" src="vmsoit-logo.png" alt="" />
+  <div class="slide-inner">
+
+    <p class="outro-channel reveal">
+      <span>VMSOIT</span> &nbsp;&middot;&nbsp; CompTIA A+ Core 1 (220-1201) Prep
+    </p>
+
+    <div class="outro-center reveal">
+      <div class="outro-subscribe">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#ffffff">
+          <path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z" />
+        </svg>
+        Subscribe
+      </div>
+      <p class="outro-hint">Thanks for watching — see you in the next lesson!</p>
+    </div>
+
+    <div class="outro-cards">
+      <div class="outro-video-card">
+        <div class="outro-thumb">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+            <path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z" />
+          </svg>
+        </div>
+        <div class="outro-card-info">
+          <div class="outro-card-tag">Watch Next</div>
+          <div class="outro-card-title">Objective 1.2 — Mobile Device Accessories and Ports</div>
+        </div>
+      </div>
+      <div class="outro-video-card">
+        <div class="outro-thumb">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#F3F3F3">
+            <path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z" />
+          </svg>
+        </div>
+        <div class="outro-card-info">
+          <div class="outro-card-tag">Popular</div>
+          <div class="outro-card-title">Objective 1.1 Exam Cram — Mobile Hardware in 10 Minutes</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+    </main>
+  </div>
+  <!-- /deck-viewport -->
+
+
+  <!-- Deck navigation controls (outside the stage) -->
+  <nav class="deck-controls" id="deckControls">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous slide">&#8249;</button>
+    <div class="dots" id="dotsWrap"></div>
+    <button class="nav-btn" id="nextBtn" aria-label="Next slide">&#8250;</button>
+    <span class="counter" id="counter">01 / 23</span>
+  </nav>
+
+  <script>
+    /* ============================================================
+     VMSOIT SLIDE DECK — Master Script
+     ============================================================
+     Class order:
+       1.  SlidePresentation   — deck navigation + stage scaling
+       2.  InlineEditor        — hover-to-edit + localStorage save
+       3.  CardFlipController  — 3-D card flip (data-flip-card)
+       4.  UnordPopController  — pop-to-center unordered list
+       5.  TabsComponent       — tabbed content panels
+       6.  NarrativeSlider     — image + text sequential slider
+  
+     Initialisation block at the very bottom (single call each).
+     ============================================================ */
+
+
+    /* ============================================================
+       1. SLIDE PRESENTATION CONTROLLER
+       Handles: stage scaling, keyboard/touch/wheel/button nav,
+       dot indicators, slide counter.
+       ============================================================ */
+    class SlidePresentation {
+      constructor() {
+        this.slides = Array.from(document.querySelectorAll('.slide'));
+        this.currentSlide = 0;
+        this.stage = document.getElementById('deckStage');
+        this.dotsWrap = document.getElementById('dotsWrap');
+        this.counter = document.getElementById('counter');
+
+        this.buildDots();
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.setupButtons();
+        this.showSlide(0);
+      }
+
+      /* Build one dot per slide and wire click → showSlide */
+      buildDots() {
+        this.slides.forEach((_, i) => {
+          const d = document.createElement('div');
+          d.className = 'dot' + (i === 0 ? ' active' : '');
+          d.addEventListener('click', () => this.showSlide(i));
+          this.dotsWrap.appendChild(d);
+        });
+      }
+
+      /* Scale the 1920×1080 stage to fit any viewport */
+      setupStageScale() {
+        const scale = () => {
+          const factor = Math.min(
+            window.innerWidth / 1920,
+            window.innerHeight / 1080
+          );
+          const x = (window.innerWidth - 1920 * factor) / 2;
+          const y = (window.innerHeight - 1080 * factor) / 2;
+          this.stage.style.transform =
+            `translate(${x}px,${y}px) scale(${factor})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+      }
+
+      /* Arrow keys / Space / PageUp-Down navigate slides.
+         'E' key toggles inline edit mode (needs `editor` in scope). */
+      setupKeyboardNav() {
+        document.addEventListener('keydown', e => {
+          /* Do not steal keys while a text field is focused */
+          if (e.target.getAttribute('contenteditable') === 'true') return;
+
+          if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) {
+            e.preventDefault();
+            this.next();
+          }
+          if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) {
+            e.preventDefault();
+            this.prev();
+          }
+          /* Toggle inline editor — `editor` is defined before SlidePresentation */
+          if (e.key === 'e' || e.key === 'E') editor.toggleEditMode();
+        });
+      }
+
+      /* Swipe left/right on touch devices */
+      setupTouchNav() {
+        let startX = 0;
+        this.stage.addEventListener('touchstart', e => {
+          startX = e.touches[0].clientX;
+        }, { passive: true });
+        this.stage.addEventListener('touchend', e => {
+          const dx = e.changedTouches[0].clientX - startX;
+          if (Math.abs(dx) > 50) dx < 0 ? this.next() : this.prev();
+        }, { passive: true });
+      }
+
+      /* Mouse wheel navigates slides (debounced 500 ms) */
+      setupWheelNav() {
+        let locked = false;
+        window.addEventListener('wheel', e => {
+          if (locked || Math.abs(e.deltaY) < 18) return;
+          locked = true;
+          e.deltaY > 0 ? this.next() : this.prev();
+          setTimeout(() => locked = false, 500);
+        }, { passive: true });
+      }
+
+      /* Wire prev/next buttons in the deck controls nav */
+      setupButtons() {
+        document.getElementById('nextBtn')
+          .addEventListener('click', () => this.next());
+        document.getElementById('prevBtn')
+          .addEventListener('click', () => this.prev());
+      }
+
+      next() { this.showSlide(this.currentSlide + 1); }
+      prev() { this.showSlide(this.currentSlide - 1); }
+
+      /* Activate a slide by index — clamps to valid range */
+      showSlide(index) {
+        this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+
+        this.slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === this.currentSlide);
+          slide.classList.toggle('visible', i === this.currentSlide);
+        });
+
+        Array.from(this.dotsWrap.children).forEach((d, i) =>
+          d.classList.toggle('active', i === this.currentSlide)
+        );
+
+        this.counter.textContent =
+          String(this.currentSlide + 1).padStart(2, '0') +
+          ' / ' +
+          String(this.slides.length).padStart(2, '0');
+      }
+    }
+
+
+    /* ============================================================
+       2. LIGHTWEIGHT INLINE EDITOR
+       Hover the top-left corner (or press E) to toggle edit mode.
+       Click any editable element to change text directly.
+       Changes auto-save to localStorage; Ctrl+S forces a save.
+    
+       To make a new element editable, add its CSS selector to the
+       editableSelectors array below.
+       ============================================================ */
+    class InlineEditor {
+      constructor() {
+        this.isActive = false;
+        this.storageKey = 'vmsoit-template-deck-edits';
+        this.toggleBtn = document.getElementById('editToggle');
+        this.hotzone = document.getElementById('editHotzone');
+
+        /* ── Add any new slide-type selectors here ── */
+        this.editableSelectors = [
+          'h1', 'h2', 'h3', 'p',
+          'span:not(.idx):not(.chev)',
+          /* TYPE 2  — agenda */
+          '.agenda-title', '.agenda-sub', '.dc-tag', '.dc-val',
+          /* TYPE 4  — major-heading */
+          '.mh-para', '.mh-big-num', '.mh-accent-lbl',
+          /* TYPE 5  — minor-heading */
+          '.mnh-title', '.ac-label',
+          /* TYPE 6  — bullet-list */
+          '.bi-label', '.bi-sub',
+          /* TYPE 7  — numbered-list */
+          '.step-title', '.step-desc',
+          /* TYPE 8  — explanation-text */
+          '.expl-para', '.er-label',
+          /* TYPE 9  — explanation-image */
+          '.ei-title', '.ei-para', '.img-caption',
+          /* TYPE 10 — background-image */
+          '.bi-title', '.bi-body',
+          /* TYPE 11/12 — comparison */
+          '.cmp-head',
+          /* TYPE 13 — table */
+          'th', 'td',
+          /* TYPE 14 — important-note */
+          '.note-label', '.note-headline', '.note-detail',
+          /* TYPE 15 — video-embed */
+          '.vl-title', '.vl-desc', '.vl-tip',
+          /* TYPE 16 — CTA */
+          '.cta-heading', '.cta-sub', '.cc-label', '.cta-tagline',
+          /* TYPE 17 — outro */
+          '.outro-channel', '.outro-card-tag', '.outro-card-title', '.outro-hint',
+          /* Tabs component */
+          '.tab-item-tag', '.tab-item-title', '.tab-item-body',
+          /* Narrative slider */
+          '.narr-item-tag', '.narr-item-title', '.narr-item-body',
+          /* Shared */
+          'li span', '.num', '.lbl',
+        ].join(',');
+
+        this.setupHoverReveal();
+        this.toggleBtn.addEventListener('click', () => this.toggleEditMode());
+        this.hotzone.addEventListener('click', () => this.toggleEditMode());
+        this.restore();
+
+        /* Ctrl+S / Cmd+S forces a manual save */
+        window.addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            this.save();
+          }
+        });
+      }
+
+      /* Show the edit button when cursor enters the top-left corner */
+      setupHoverReveal() {
+        let hideTimer = null;
+        const show = () => {
+          clearTimeout(hideTimer);
+          this.toggleBtn.classList.add('show');
+        };
+        const hide = () => {
+          hideTimer = setTimeout(() => {
+            if (!this.isActive) this.toggleBtn.classList.remove('show');
+          }, 400);
+        };
+        this.hotzone.addEventListener('mouseenter', show);
+        this.hotzone.addEventListener('mouseleave', hide);
+        this.toggleBtn.addEventListener('mouseenter', show);
+        this.toggleBtn.addEventListener('mouseleave', hide);
+      }
+
+      /* Toggle all editable elements on every slide */
+      toggleEditMode() {
+        this.isActive = !this.isActive;
+        this.toggleBtn.classList.toggle('active', this.isActive);
+
+        document.querySelectorAll('.slide').forEach(slide => {
+          slide.querySelectorAll(this.editableSelectors).forEach(el => {
+            el.setAttribute('contenteditable', this.isActive ? 'true' : 'false');
+          });
+        });
+
+        if (!this.isActive) this.save();
+      }
+
+      /* Persist current innerHTML of every editable element */
+      save() {
+        const data = {};
+        document.querySelectorAll('.slide').forEach((slide, si) => {
+          data[si] = Array.from(slide.querySelectorAll(this.editableSelectors))
+            .map(el => el.innerHTML);
+        });
+        try { localStorage.setItem(this.storageKey, JSON.stringify(data)); }
+        catch (e) { /* localStorage unavailable (private browsing, etc.) */ }
+      }
+
+      /* Re-apply saved innerHTML on page load */
+      restore() {
+        let data;
+        try { data = JSON.parse(localStorage.getItem(this.storageKey)); }
+        catch (e) { return; }
+        if (!data) return;
+
+        document.querySelectorAll('.slide').forEach((slide, si) => {
+          const els = slide.querySelectorAll(this.editableSelectors);
+          (data[si] || []).forEach((html, ei) => {
+            if (els[ei]) els[ei].innerHTML = html;
+          });
+        });
+      }
+    }
+
+
+    /* ============================================================
+       3. CARD FLIP CONTROLLER
+       Targets every [data-flip-card] element.
+       Click (or Enter/Space when focused) flips the card.
+       Cards reset to front face when their slide leaves view.
+       ============================================================ */
+    class CardFlipController {
+      constructor() {
+        this._bindAllCards();
+        this._watchSlideVisibility();
+      }
+
+      /* Wire click + keyboard to every flip card on the page */
+      _bindAllCards() {
+        document.querySelectorAll('[data-flip-card]').forEach(card => {
+          card.addEventListener('click', e => {
+            e.stopPropagation(); /* prevent triggering slide navigation */
+            this._toggle(card);
+          });
+          card.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              this._toggle(card);
+            }
+          });
+        });
+      }
+
+      _toggle(card) {
+        card.classList.toggle('flipped');
+      }
+
+      /* Reset all cards in a slide when that slide becomes inactive */
+      _watchSlideVisibility() {
+        document.querySelectorAll('.slide').forEach(slide => {
+          new MutationObserver(() => {
+            if (!slide.classList.contains('visible')) {
+              /* Wait for slide exit transition to finish before resetting */
+              setTimeout(() => {
+                slide.querySelectorAll('[data-flip-card].flipped')
+                  .forEach(c => c.classList.remove('flipped'));
+              }, 520);
+            }
+          }).observe(slide, { attributes: true, attributeFilter: ['class'] });
+        });
+      }
+    }
+
+
+    /* ============================================================
+       4. UNORD POP CONTROLLER
+       Targets every [data-pop-wrap] element.
+       Click an .unord-item → it springs to the centre of the stage.
+       Click again (or press Escape) → it returns to its original position.
+       Uses box-shadow spread (0 0 0 3000px) as the overlay — no extra DOM.
+       ============================================================ */
+    class UnordPopController {
+      constructor() {
+        this.deckStage = document.getElementById('deckStage');
+        this.activeItem = null;
+
+        /* Spring easing for the pop-out move */
+        this.SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+        /* Smooth ease-out for the return move */
+        this.EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
+        document.querySelectorAll('[data-pop-wrap]').forEach(wrap => {
+          this._initWrap(wrap);
+        });
+
+        /* Escape collapses any open item */
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape' && this.activeItem) this._collapse(this.activeItem);
+        });
+      }
+
+      _initWrap(wrap) {
+        const items = Array.from(wrap.querySelectorAll('.unord-item'));
+        items.forEach(item => {
+          item.addEventListener('click', e => {
+            e.stopPropagation();
+            if (item.classList.contains('popped')) {
+              this._collapse(item);
+            } else {
+              /* Collapse any previously popped item first */
+              if (this.activeItem && this.activeItem !== item) {
+                this._collapse(this.activeItem, true /* instant */);
+              }
+              this._pop(item, wrap, items);
+            }
+          });
+        });
+      }
+
+      _pop(item, wrap, siblings) {
+        const { dx, dy } = this._calcCenter(item);
+
+        /* Spring transition for the pop move */
+        item.style.transition = [
+          `transform 480ms ${this.SPRING}`,
+          'background 220ms ease',
+          'border-left-color 220ms ease',
+          'border-left-width 220ms ease',
+          `box-shadow 350ms ${this.EASE}`,
+          'opacity 220ms ease',
+        ].join(',');
+
+        item.style.transform = `translate(${dx}px, ${dy}px)`;
+        item.classList.add('popped');
+        wrap.classList.add('has-popped');
+        this.activeItem = item;
+
+        /* Dim all sibling items */
+        siblings.forEach(sib => {
+          if (sib !== item) {
+            sib.style.transition = 'opacity 300ms ease';
+            sib.style.opacity = '0.1';
+          }
+        });
+      }
+
+      _collapse(item, instant = false) {
+        const wrap = item.closest('[data-pop-wrap]');
+        const siblings = Array.from(wrap.querySelectorAll('.unord-item'));
+
+        /* Smooth ease-out for the return move */
+        item.style.transition = [
+          `transform 420ms ${this.EASE}`,
+          'background 220ms ease',
+          'border-left-color 220ms ease',
+          'border-left-width 220ms ease',
+          `box-shadow 320ms ${this.EASE}`,
+          'opacity 220ms ease',
+        ].join(',');
+
+        item.style.transform = 'translateX(0)';
+        item.classList.remove('popped');
+        wrap.classList.remove('has-popped');
+        this.activeItem = null;
+
+        /* Restore sibling opacity */
+        siblings.forEach(sib => {
+          sib.style.transition = instant ? 'none' : `opacity 300ms ${this.EASE}`;
+          sib.style.opacity = '';
+        });
+      }
+
+      /* Calculate how many stage-px to translate item so it centres on 960,540 */
+      _calcCenter(item) {
+        const stageRect = this.deckStage.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+
+        /* Scale factor: viewport px per stage px */
+        const scale = stageRect.width / 1920;
+
+        /* Item centre in viewport coordinates */
+        const itemVCX = itemRect.left + itemRect.width / 2;
+        const itemVCY = itemRect.top + itemRect.height / 2;
+
+        /* Convert to stage (1920×1080) coordinate space */
+        const itemSCX = (itemVCX - stageRect.left) / scale;
+        const itemSCY = (itemVCY - stageRect.top) / scale;
+
+        return { dx: 960 - itemSCX, dy: 540 - itemSCY };
+      }
+    }
+
+
+    /* ============================================================
+       5. TABS COMPONENT
+       Targets every [data-tabs-slide] element.
+       Reads .tab-btn and .tab-panel elements directly from the HTML
+       (no JSON — add images with plain <img> tags in each panel).
+       A sliding yellow underline indicator tracks the active tab.
+       Resets to tab 0 when the slide leaves view.
+    
+       HOW TO ADD A NEW TAB:
+         1. Add a <button class="tab-btn" data-index="N">Label</button>
+            inside [data-tabs-nav].
+         2. Add a <div class="tab-panel" data-index="N">...</div>
+            inside [data-tabs-panels].
+       ============================================================ */
+    class TabsComponent {
+      static initAll() {
+        document.querySelectorAll('[data-tabs-slide]').forEach(el => {
+          new TabsComponent(el);
+        });
+      }
+
+      constructor(slideEl) {
+        this.current = 0;
+        this.indicator = slideEl.querySelector('[data-tabs-indicator]');
+        this.btnEls = Array.from(slideEl.querySelectorAll('.tab-btn'));
+        this.panelEls = Array.from(slideEl.querySelectorAll('.tab-panel'));
+
+        /* Wire click on each tab button */
+        this.btnEls.forEach((btn, i) => {
+          btn.addEventListener('click', () => this._activate(i));
+        });
+
+        /* Re-position indicator when viewport is resized */
+        window.addEventListener('resize', () => {
+          this._moveIndicator(this.current, false /* no animation */);
+        });
+
+        /* Reset to first tab when slide leaves view */
+        new MutationObserver(() => {
+          if (!slideEl.classList.contains('visible')) {
+            setTimeout(() => this._activate(0, false), 520);
+          }
+        }).observe(slideEl, { attributes: true, attributeFilter: ['class'] });
+
+        /* Activate the first tab with no transition on load */
+        this._activate(0, false);
+      }
+
+      /* Switch to the tab at index, optionally animating the panel */
+      _activate(index, animate = true) {
+        this.current = index;
+
+        /* Update button active states */
+        this.btnEls.forEach((btn, i) => {
+          btn.classList.toggle('tab-active', i === index);
+          btn.setAttribute('aria-selected', i === index ? 'true' : 'false');
+        });
+
+        /* Hide all panels immediately */
+        this.panelEls.forEach(p => p.classList.remove('tab-panel-active'));
+
+        /* Slide indicator to the active button */
+        this._moveIndicator(index, animate);
+
+        /* Show new panel — slight delay when animating so the old panel
+           has time to fade out before the new one fades in */
+        setTimeout(() => {
+          this.panelEls[index]?.classList.add('tab-panel-active');
+        }, animate ? 140 : 0);
+      }
+
+      /* Translate the yellow sliding underline to sit under the active button */
+      _moveIndicator(index, animate = true) {
+        const btn = this.btnEls[index];
+        if (!btn || !this.indicator) return;
+
+        if (!animate) {
+          /* Instant repositioning — disable transition for one frame */
+          this.indicator.style.transition = 'none';
+          this.indicator.style.left = `${btn.offsetLeft}px`;
+          this.indicator.style.width = `${btn.offsetWidth}px`;
+          requestAnimationFrame(() => (this.indicator.style.transition = ''));
+        } else {
+          this.indicator.style.left = `${btn.offsetLeft}px`;
+          this.indicator.style.width = `${btn.offsetWidth}px`;
+        }
+      }
+    }
+
+
+    /* ============================================================
+       6. NARRATIVE SLIDER
+       Targets every [data-narrative-slide] element.
+       Images are placed directly in the HTML with data-index attributes.
+       Text content for each slide is read from data-tag / data-title /
+       data-body attributes on those same image elements, OR from rich-HTML
+       <div class="narr-text-data" data-index="N"> blocks (see below).
+    
+       HOW TO STORE RICH BODY TEXT (bullet lists, bold, etc.):
+       Add hidden text blocks inside the slide section:
+         <div class="narr-text-data" hidden data-index="0">
+           <span class="narr-item-tag">01 of 03</span>
+           <span class="narr-item-title">Title Here</span>
+           <div class="narr-item-body"><p>Rich HTML body...</p></div>
+         </div>
+       The slider will prefer these blocks over data-* attributes.
+    
+       HOW TO ADD A NEW ITEM:
+         1. Add a [data-index="N"] image inside .narr-img-frame.
+         2. Add a matching .narr-indicator div.
+         3. Add a narr-text-data block (or data-* attrs) for the text.
+       ============================================================ */
+    class NarrativeSlider {
+      static initAll() {
+        document.querySelectorAll('[data-narrative-slide]').forEach(slide => {
+          new NarrativeSlider(slide);
+        });
+      }
+
+      constructor(slideEl) {
+        this.slide = slideEl;
+        this.current = 0;
+        this.animating = false;
+
+        /* Image elements — each must have data-index="N" */
+        this.imgEls = Array.from(
+          slideEl.querySelectorAll('.narr-img-frame [data-index]')
+        );
+        this.total = this.imgEls.length;
+
+        /* Content area refs */
+        this.content = slideEl.querySelector('[data-narr-content]');
+        this.tagEl = slideEl.querySelector('[data-narr-tag]');
+        this.titleEl = slideEl.querySelector('[data-narr-title]');
+        this.bodyEl = slideEl.querySelector('[data-narr-body]');
+        this.badgeEl = slideEl.querySelector('[data-narr-badge]');
+        this.counterEl = slideEl.querySelector('[data-narr-counter]');
+        this.prevBtn = slideEl.querySelector('[data-narr-prev]');
+        this.nextBtn = slideEl.querySelector('[data-narr-next]');
+        this.indicators = Array.from(slideEl.querySelectorAll('.narr-indicator'));
+
+        /* Wire navigation controls */
+        this.prevBtn?.addEventListener('click', () => this.go(this.current - 1));
+        this.nextBtn?.addEventListener('click', () => this.go(this.current + 1));
+        this.indicators.forEach((ind, i) => {
+          ind.addEventListener('click', () => this.go(i));
+        });
+
+        /* Reset to item 0 when slide leaves view */
+        new MutationObserver(() => {
+          if (!slideEl.classList.contains('visible')) {
+            setTimeout(() => this._reset(), 520);
+          }
+        }).observe(slideEl, { attributes: true, attributeFilter: ['class'] });
+
+        /* Initial render — no animation */
+        this._switchImage(0);
+        this._updateNav(0);
+        this._updateCounter(0);
+        this._updateText(0);
+        if (this.content) this.content.classList.add('narr-content-live');
+      }
+
+      /* Navigate to a specific index with exit → enter animation */
+      go(index) {
+        if (index < 0 || index >= this.total || this.animating) return;
+        this.animating = true;
+
+        /* 1. Exit current content */
+        if (this.content) {
+          this.content.classList.remove('narr-content-live');
+          this.content.classList.add('narr-content-exit');
+        }
+
+        /* 2. After exit animation, switch image + update DOM */
+        setTimeout(() => {
+          this.current = index;
+          this._switchImage(index);
+          this._updateCounter(index);
+          this._updateText(index);
+
+          if (this.content) this.content.classList.remove('narr-content-exit');
+
+          /* 3. Double rAF ensures the browser registers the removed class
+                before adding the enter class (triggers CSS transition) */
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (this.content) this.content.classList.add('narr-content-live');
+              this._updateNav(index);
+              setTimeout(() => (this.animating = false), 460);
+            });
+          });
+        }, 260);
+      }
+
+      /* Crossfade images by toggling .narr-active */
+      _switchImage(index) {
+        this.imgEls.forEach(el => {
+          el.classList.toggle(
+            'narr-active',
+            parseInt(el.dataset.index, 10) === index
+          );
+        });
+      }
+
+      /* Update the badge + counter text (e.g. "2 / 3") */
+      _updateCounter(index) {
+        const label = `${index + 1} / ${this.total}`;
+        if (this.badgeEl) this.badgeEl.textContent = label;
+        if (this.counterEl) this.counterEl.textContent = label;
+      }
+
+      /* Enable/disable prev+next buttons and highlight the active indicator */
+      _updateNav(index) {
+        if (this.prevBtn) this.prevBtn.disabled = index === 0;
+        if (this.nextBtn) this.nextBtn.disabled = index === this.total - 1;
+        this.indicators.forEach((ind, i) => {
+          ind.classList.toggle('narr-active', i === index);
+        });
+      }
+
+      /* Update the right-side text panel.
+         Priority 1: a hidden .narr-text-data[data-index="N"] block in HTML
+                     (supports full rich HTML — recommended for bullet lists).
+         Priority 2: data-tag / data-title / data-body attributes on the
+                     image element (plain text or HTML-encoded strings). */
+      _updateText(index) {
+        /* Priority 1 — rich HTML text block */
+        const richBlock = this.slide.querySelector(
+          `.narr-text-data[data-index="${index}"]`
+        );
+        if (richBlock) {
+          const srcTag = richBlock.querySelector('.narr-item-tag');
+          const srcTitle = richBlock.querySelector('.narr-item-title');
+          const srcBody = richBlock.querySelector('.narr-item-body');
+          if (this.tagEl && srcTag) this.tagEl.innerHTML = srcTag.innerHTML;
+          if (this.titleEl && srcTitle) this.titleEl.innerHTML = srcTitle.innerHTML;
+          if (this.bodyEl && srcBody) this.bodyEl.innerHTML = srcBody.innerHTML;
+          return;
+        }
+
+        /* Priority 2 — data-* attributes on the image element */
+        const el = this.imgEls[index];
+        if (!el) return;
+        if (this.tagEl) this.tagEl.textContent = el.dataset.tag || '';
+        if (this.titleEl) this.titleEl.textContent = el.dataset.title || '';
+        /* innerHTML so data-body can contain encoded HTML tags */
+        if (this.bodyEl) this.bodyEl.innerHTML = el.dataset.body || '';
+      }
+
+      /* Reset to first item (called on slide leave) */
+      _reset() {
+        this.animating = false;
+        this.current = 0;
+        this._switchImage(0);
+        this._updateCounter(0);
+        this._updateText(0);
+        if (this.content) {
+          this.content.classList.remove('narr-content-exit');
+          this.content.classList.add('narr-content-live');
+        }
+        this._updateNav(0);
+      }
+    }
+
+
+    /* ============================================================
+       INITIALISATION
+       Order matters:
+         · `editor` must be defined before `new SlidePresentation()`
+           because setupKeyboardNav() references it immediately.
+         · Everything else can follow in any order.
+       ============================================================ */
+    const editor = new InlineEditor();       /* must be first */
+    new SlidePresentation();                 /* sets up stage scale + nav */
+    new CardFlipController();                /* flip cards */
+    new UnordPopController();                /* pop-to-centre list items */
+    TabsComponent.initAll();                 /* tabbed panels */
+    NarrativeSlider.initAll();               /* image + text sequential slider */
+  </script>
+</body>
+
+</html>

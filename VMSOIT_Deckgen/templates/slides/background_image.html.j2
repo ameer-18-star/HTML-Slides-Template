@@ -1,0 +1,22 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide bg-image-slide" id="{{ slug }}">
+
+  <div class="bg-img-wrap">
+    <img src="{{ image_src }}" alt="" />
+  </div>
+
+  <div class="slide-inner">
+    <p class="eyebrow reveal">
+      {{ m.chevron() }}
+      {{ eyebrow }}
+      <span class="idx">&nbsp;&middot;&nbsp; {{ "%02d"|format(index) }}</span>
+    </p>
+
+    <div class="bi-overlay reveal">
+      <h2 class="bi-title">{{ title }}</h2>
+      <p class="bi-body">{{ body }}</p>
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

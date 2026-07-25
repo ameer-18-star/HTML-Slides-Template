@@ -1,0 +1,73 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}" data-narrative-slide>
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <p class="narr-intro reveal">{{ intro }}</p>
+
+    <div class="narr-layout" data-narrative-root>
+
+      <div class="narr-img-area">
+
+        <div class="narr-img-frame">
+          <div class="narr-img-badge" data-narr-badge>1 / {{ items|length }}</div>
+
+          {% for item in items %}
+          {% if item.image_src %}
+          <img class="narr-img{{ ' narr-active' if loop.first else '' }}" data-index="{{ loop.index0 }}"
+            src="{{ item.image_src }}" alt="{{ item.title }}"
+            data-tag="{{ item.tag }}" data-title="{{ item.title }}" data-body="{{ item.body }}" />
+          {% else %}
+          <div class="narr-img-placeholder{{ ' narr-active' if loop.first else '' }}" data-index="{{ loop.index0 }}"
+            data-tag="{{ item.tag }}" data-title="{{ item.title }}" data-body="{{ item.body }}">
+            {{ m.icon_placeholder() }}
+            <span>{{ item.title }}</span>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="narr-controls">
+
+          <button class="narr-btn" data-narr-prev aria-label="Previous item" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          <div style="display:flex; align-items:center; gap:20px;">
+            <div class="narr-indicators" data-narr-indicators>
+              {% for item in items %}
+              <div class="narr-indicator{{ ' narr-active' if loop.first else '' }}" data-index="{{ loop.index0 }}"></div>
+              {% endfor %}
+            </div>
+            <span class="narr-counter" data-narr-counter>1 / {{ items|length }}</span>
+          </div>
+
+          <button class="narr-btn" data-narr-next aria-label="Next item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+
+        </div>
+      </div>
+
+      <div class="narr-content-area narr-content-live" data-narr-content>
+        <div class="narr-item-tag" data-narr-tag>{{ items[0].tag }}</div>
+        <div class="narr-accent-line"></div>
+        <div class="narr-item-title" data-narr-title>{{ items[0].title }}</div>
+        <div class="narr-item-body" data-narr-body>
+          <p>{{ items[0].body }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

@@ -1,0 +1,35 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <div class="video-layout">
+
+      <div class="video-left reveal">
+        <div class="vl-title">{{ video_title }}</div>
+        <p class="vl-desc">{{ description }}</p>
+        <div class="vl-tips">
+          {% for tip in tips %}
+          <div class="vl-tip">
+            {{ m.chevron(width="4", class="") }}
+            {{ tip }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="video-box">
+        <iframe src="https://www.youtube.com/embed/{{ youtube_id }}?rel=0&modestbranding=1"
+          title="{{ video_title }}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

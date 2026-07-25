@@ -1,0 +1,21 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <h2 class="title reveal">{{ title }}</h2>
+
+    <div class="topic-cols">
+      {% for point in items %}
+      <div class="topic-item">
+        {{ m.chevron(width="4", class="") }}
+        <span>{{ point }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

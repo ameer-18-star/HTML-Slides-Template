@@ -1,0 +1,31 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide minor-heading-slide" id="{{ slug }}">
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <div class="mnh-layout">
+
+      <div class="mnh-left">
+        <h3 class="mnh-title">{{ title }}</h3>
+        {% for para in paragraphs %}
+        <p class="mnh-para">{{ para }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="mnh-accent-card cut reveal">
+        <div class="ac-label">Key Points</div>
+        {% for point in key_points %}
+        <div class="ac-point">
+          {{ m.chevron(width="4", class="") }}
+          {{ point }}
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>

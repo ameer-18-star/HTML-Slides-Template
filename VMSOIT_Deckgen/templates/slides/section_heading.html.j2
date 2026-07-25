@@ -1,0 +1,44 @@
+{% import "slides/_macros.html.j2" as m %}
+<section class="slide" id="{{ slug }}">
+
+  <div class="sh-ghost" aria-hidden="true">{{ ghost_number }}</div>
+  <div class="sh-corner" aria-hidden="true"></div>
+  <div class="sh-stripe" aria-hidden="true"></div>
+
+  {{ m.watermark() }}
+  <div class="slide-inner">
+
+    {{ m.eyebrow(eyebrow, index) }}
+
+    <div class="sh-content">
+
+      <div class="sh-heading-wrap">
+        <div class="sh-bracket"></div>
+        <h2 class="sh-title">{{ title }}</h2>
+      </div>
+
+      <div class="sh-line-wrap">
+        <div class="sh-line"></div>
+      </div>
+
+      <div class="sh-desc-wrap">
+        {% for para in paragraphs %}
+        <p class="sh-desc">{{ para }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="sh-meta">
+        {% for m_item in meta %}
+        <div class="sh-meta-item">
+          <span class="sh-meta-label">{{ m_item.label }}</span>
+          <span class="sh-meta-val">{{ m_item.val }}</span>
+        </div>
+        {% if not loop.last %}<div class="sh-meta-sep"></div>{% endif %}
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+  {{ m.footer_bar(footer_label) }}
+</section>
