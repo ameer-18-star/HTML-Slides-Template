@@ -1,0 +1,2954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code as a Medium for Storytelling | Zara @ Vibe Code Jam</title>
+
+    <!-- Fonts: DM Serif Display + DM Sans from Google, JetBrains Mono from Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           THEME VARIABLES
+           Change these to restyle the entire deck
+           =========================================== */
+        :root {
+            /* Backgrounds — warm neutral dark, no blue-black */
+            --bg-deep: #0e0d0b;
+            --bg-primary: #111110;
+            --bg-surface: #1c1b18;
+            --bg-surface-hover: #252420;
+
+            /* Text — warm cream, not cold white */
+            --text-primary: #f0ece0;
+            --text-secondary: #857e72;
+            --text-dim: #4a4540;
+
+            /* ONE accent: electric chartreuse — no gradients, no palettes */
+            --accent-warm: #d4ff2c;
+            --accent-warm-glow: rgba(212, 255, 44, 0.2);
+            --accent-cool: #d4ff2c;
+            --accent-cool-glow: rgba(212, 255, 44, 0.15);
+            --accent-gold: #d4ff2c;
+            --gradient-warm-cool: #d4ff2c;
+
+            /* Typography */
+            --font-display: 'DM Serif Display', Georgia, serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-serif: 'DM Serif Display', Georgia, serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --title-size: clamp(2.5rem, 7vw, 6rem);
+            --heading-size: clamp(1.8rem, 5vw, 4rem);
+            --subheading-size: clamp(1.2rem, 2.5vw, 2rem);
+            --body-size: clamp(0.9rem, 1.5vw, 1.25rem);
+            --small-size: clamp(0.75rem, 1vw, 0.95rem);
+
+            /* Spacing */
+            --slide-padding: clamp(2rem, 5vw, 5rem);
+            --content-gap: clamp(1rem, 2.5vw, 2.5rem);
+
+            /* Animation */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --duration: 0.7s;
+        }
+
+        /* ===========================================
+           RESET & BASE
+           =========================================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            height: 100%;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a { color: var(--accent-cool); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ===========================================
+           CANVAS — hidden, particles removed
+           =========================================== */
+        #constellation { display: none; }
+        .orb { display: none; }
+
+        /* ===========================================
+           BACKGROUND TEXTURE
+           Subtle noise grain + faint horizontal rules
+           =========================================== */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.028;
+            background-image: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 79px,
+                rgba(240, 236, 224, 0.9) 79px,
+                rgba(240, 236, 224, 0.9) 80px
+            );
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.055;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           =========================================== */
+        .slides-wrapper {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            padding: var(--slide-padding);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+            transition: opacity 0.45s ease, transform 0.45s var(--ease-out-expo);
+            overflow: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .slide-content {
+            max-width: 1100px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: var(--content-gap);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            z-index: 100;
+            background: rgba(255,255,255,0.06);
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient-warm-cool);
+            transition: width 0.5s var(--ease-out-expo);
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(12px, 2vw, 24px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 1px;
+            background: rgba(240, 236, 224, 0.12);
+            border: none;
+            cursor: pointer;
+            transition: all 0.35s var(--ease-out-expo);
+            padding: 0;
+        }
+        .nav-dot:hover {
+            background: rgba(240, 236, 224, 0.35);
+            transform: scale(1.4);
+        }
+        .nav-dot.active {
+            background: var(--accent-warm);
+            transform: scale(1.5);
+        }
+
+        /* ===========================================
+           SLIDE COUNTER
+           =========================================== */
+        .slide-counter {
+            position: fixed;
+            bottom: clamp(12px, 2vw, 24px);
+            right: clamp(12px, 2vw, 24px);
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dim);
+            z-index: 100;
+            letter-spacing: 0.05em;
+        }
+        .slide-counter .current-num {
+            color: var(--accent-warm);
+            font-weight: 600;
+        }
+
+        /* ===========================================
+           KEYBOARD HINT
+           =========================================== */
+        .keyboard-hint {
+            position: fixed;
+            bottom: clamp(12px, 2vw, 24px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-mono);
+            font-size: clamp(0.6rem, 0.8vw, 0.75rem);
+            color: var(--text-dim);
+            z-index: 100;
+            opacity: 0.6;
+            transition: opacity 2s ease 5s;
+        }
+        .keyboard-hint.hidden { opacity: 0; }
+
+        /* ===========================================
+           TYPOGRAPHY
+           =========================================== */
+        .title-huge {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 400;
+            line-height: 1.08;
+            letter-spacing: 0;
+        }
+        .heading {
+            font-family: var(--font-display);
+            font-size: var(--heading-size);
+            font-weight: 400;
+            line-height: 1.18;
+            letter-spacing: 0;
+        }
+        .subheading {
+            font-family: var(--font-body);
+            font-size: var(--subheading-size);
+            font-weight: 400;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .body-text {
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .serif-quote {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: clamp(1.4rem, 3.5vw, 3rem);
+            line-height: 1.35;
+            color: var(--text-primary);
+        }
+        .mono {
+            font-family: var(--font-mono);
+        }
+        .gradient-text {
+            color: var(--accent-warm);
+            -webkit-text-fill-color: var(--accent-warm);
+        }
+        .accent-warm { color: var(--accent-warm); }
+        .accent-cool { color: var(--accent-warm); }
+        .accent-gold { color: var(--accent-warm); }
+
+        /* ===========================================
+           REVEAL ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity var(--duration) var(--ease-out-expo),
+                        transform var(--duration) var(--ease-out-expo);
+        }
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity var(--duration) var(--ease-out-expo),
+                        transform var(--duration) var(--ease-out-expo);
+        }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: opacity var(--duration) var(--ease-out-expo),
+                        transform var(--duration) var(--ease-out-expo);
+        }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(40px);
+            transition: opacity var(--duration) var(--ease-out-expo),
+                        transform var(--duration) var(--ease-out-expo);
+        }
+        .reveal-blur {
+            opacity: 0;
+            filter: blur(12px);
+            transition: opacity 0.8s var(--ease-out-expo),
+                        filter 0.8s var(--ease-out-expo);
+        }
+
+        .slide.active .reveal,
+        .slide.active .reveal-scale,
+        .slide.active .reveal-left,
+        .slide.active .reveal-right,
+        .slide.active .reveal-blur {
+            opacity: 1;
+            transform: translateY(0) translateX(0) scale(1);
+            filter: blur(0);
+        }
+
+        /* Stagger delays */
+        .delay-1 { transition-delay: 0.1s !important; }
+        .delay-2 { transition-delay: 0.2s !important; }
+        .delay-3 { transition-delay: 0.35s !important; }
+        .delay-4 { transition-delay: 0.5s !important; }
+        .delay-5 { transition-delay: 0.65s !important; }
+        .delay-6 { transition-delay: 0.8s !important; }
+        .delay-7 { transition-delay: 0.95s !important; }
+        .delay-8 { transition-delay: 1.1s !important; }
+
+        /* ===========================================
+           TAG / PILL
+           =========================================== */
+        .tag {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 3px;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            border: 1px solid rgba(240, 236, 224, 0.14);
+            background: transparent;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .tag--warm {
+            border-color: rgba(212, 255, 44, 0.4);
+            color: var(--accent-warm);
+            background: rgba(212, 255, 44, 0.05);
+        }
+        .tag--cool {
+            border-color: rgba(240, 236, 224, 0.2);
+            color: var(--text-primary);
+            background: rgba(240, 236, 224, 0.04);
+        }
+
+        .tags-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ===========================================
+           CARDS
+           =========================================== */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid rgba(240, 236, 224, 0.08);
+            border-radius: 6px;
+            padding: clamp(16px, 2vw, 28px);
+            transition: transform 0.4s var(--ease-out-expo),
+                        box-shadow 0.4s var(--ease-out-expo),
+                        border-color 0.4s ease;
+            cursor: default;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 255, 44, 0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+        }
+
+        .card-grid {
+            display: grid;
+            gap: clamp(12px, 1.5vw, 20px);
+            width: 100%;
+        }
+        .card-grid--3 { grid-template-columns: repeat(3, 1fr); }
+        .card-grid--4 { grid-template-columns: repeat(4, 1fr); }
+        .card-grid--7 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .card-number {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+            font-weight: 400;
+            color: var(--accent-warm);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .card-title {
+            font-family: var(--font-body);
+            font-size: clamp(0.85rem, 1.3vw, 1.15rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .card-desc {
+            font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        /* ===========================================
+           BROWSER FRAME — CSS-only mockup
+           =========================================== */
+        .browser-frame {
+            background: #111122;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+            width: 100%;
+            max-width: 700px;
+        }
+        .browser-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.4);
+        }
+        .browser-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .browser-dot:nth-child(1) { background: #ff5f56; }
+        .browser-dot:nth-child(2) { background: #ffbd2e; }
+        .browser-dot:nth-child(3) { background: #27c93f; }
+        .browser-url {
+            flex: 1;
+            margin-left: 10px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.06);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        .browser-content {
+            padding: clamp(20px, 3vw, 40px);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* ===========================================
+           TWEET EMBED — official X/Twitter widget wrapper
+           =========================================== */
+        .slide-two-col--tweet {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: clamp(2rem, 5vw, 5rem);
+            justify-content: center;
+        }
+        .tweet-slide-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(1rem, 2vw, 1.8rem);
+            min-width: 0;
+        }
+        .tweet-embed-wrap {
+            flex-shrink: 0;
+            width: 440px;
+            max-height: calc(100vh - 100px);
+            overflow: hidden;
+            margin-right: clamp(1.5rem, 3vw, 3rem);
+        }
+
+        /* ===========================================
+           TWEET CARD — styled X/Twitter embed (legacy, kept for reference)
+           =========================================== */
+        .tweet-card {
+            background: var(--bg-surface);
+            border: 1px solid rgba(240, 236, 224, 0.1);
+            padding: clamp(14px, 2vw, 24px) clamp(16px, 2.5vw, 28px);
+            width: 100%;
+            max-width: 580px;
+            margin: 0 auto;
+        }
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .tweet-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .tweet-author {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            flex: 1;
+        }
+        .tweet-name {
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: clamp(0.82rem, 1.1vw, 0.95rem);
+            color: var(--text-primary);
+        }
+        .tweet-handle {
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+            color: var(--text-secondary);
+        }
+        .tweet-x-icon {
+            flex-shrink: 0;
+            color: var(--text-primary);
+            opacity: 0.7;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+        .tweet-text {
+            font-family: var(--font-body);
+            font-size: clamp(0.85rem, 1.3vw, 1.05rem);
+            color: var(--text-primary);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .tweet-text .tweet-link {
+            color: var(--accent-warm);
+            text-decoration: none;
+        }
+        .tweet-footer {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(240, 236, 224, 0.07);
+            font-family: var(--font-mono);
+            font-size: clamp(0.65rem, 0.85vw, 0.75rem);
+            color: var(--text-secondary);
+        }
+
+        /* ===========================================
+           PHONE FRAME — CSS-only mockup
+           =========================================== */
+        .phone-frame {
+            width: clamp(140px, 15vw, 200px);
+            height: clamp(280px, 30vw, 400px);
+            background: #000;
+            border-radius: 28px;
+            border: 3px solid #2a2a3a;
+            padding: 12px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 18px;
+            background: #000;
+            border-radius: 10px;
+            z-index: 2;
+        }
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 18px;
+            overflow: hidden;
+            background: linear-gradient(170deg, #1a1a2e 0%, #0f0f23 50%, #1a0a2e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .phone-screen .jp-char {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            color: var(--accent-cool);
+        }
+
+        /* Phone frame — larger variant for video demo. aspect-ratio matches iPhone (9:19.5) */
+        .phone-frame--video {
+            width: clamp(185px, 21vw, 268px);
+            aspect-ratio: 9 / 19.5;
+            height: auto;
+            border-color: #3a3a4a;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.06),
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        .phone-screen--video {
+            display: block;
+            background: #000;
+            padding: 0;
+        }
+        .phone-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
+            display: block;
+        }
+        .phone-screen .jp-reading {
+            font-size: clamp(0.6rem, 0.8vw, 0.8rem);
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        /* ===========================================
+           STAT COUNTER
+           =========================================== */
+        .stats-row {
+            display: flex;
+            gap: clamp(24px, 4vw, 60px);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 4vw, 3.5rem);
+            font-weight: 400;
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ===========================================
+           DEMO LINK PLACEHOLDER
+           =========================================== */
+        .demo-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 3px;
+            border: 1px solid rgba(212, 255, 44, 0.35);
+            color: var(--accent-warm);
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .demo-link:hover {
+            background: rgba(212, 255, 44, 0.08);
+            border-color: var(--accent-warm);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        /* ===========================================
+           IMAGE / QR PLACEHOLDER
+           =========================================== */
+        .placeholder {
+            border: 1.5px dashed rgba(240, 236, 224, 0.12);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            animation: placeholderPulse 3s ease-in-out infinite;
+        }
+        @keyframes placeholderPulse {
+            0%, 100% { border-color: rgba(240, 236, 224, 0.12); }
+            50% { border-color: rgba(212, 255, 44, 0.3); }
+        }
+        .qr-placeholder {
+            width: clamp(100px, 12vw, 160px);
+            height: clamp(100px, 12vw, 160px);
+        }
+
+        /* ===========================================
+           TRANSFORM ARROW
+           =========================================== */
+        .transform-arrow {
+            font-size: clamp(1.2rem, 2vw, 1.8rem);
+            color: var(--accent-cool);
+            opacity: 0.6;
+        }
+        .transform-row {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 1.5vw, 16px);
+            font-size: var(--body-size);
+        }
+        .transform-input {
+            color: var(--text-secondary);
+        }
+        .transform-output {
+            color: var(--accent-cool);
+            font-weight: 500;
+        }
+
+        /* ===========================================
+           SPLIT LAYOUT
+           =========================================== */
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(24px, 4vw, 60px);
+            width: 100%;
+            align-items: center;
+        }
+        .split-left, .split-right {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* ===========================================
+           BIG THREE WORDS
+           =========================================== */
+        .big-three {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(4px, 1vw, 12px);
+        }
+        .big-word {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 8vw, 7rem);
+            font-weight: 400;
+            line-height: 1.05;
+            letter-spacing: 0;
+        }
+        .big-word:last-child {
+            color: var(--accent-warm);
+        }
+
+        /* ===========================================
+           MANIFESTO LIST
+           =========================================== */
+        .manifesto-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 2vw, 24px);
+            align-items: flex-start;
+            text-align: left;
+        }
+        .manifesto-item {
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem, 3vw, 2.5rem);
+            font-weight: 400;
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 0;
+            transition: color 0.6s ease;
+        }
+        .slide.active .manifesto-item {
+            color: var(--text-primary);
+        }
+        .manifesto-item .manifesto-highlight {
+            position: relative;
+        }
+        .manifesto-item .manifesto-highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-warm);
+            transition: width 0.8s var(--ease-out-expo);
+        }
+        .slide.active .manifesto-item .manifesto-highlight::after {
+            width: 100%;
+        }
+
+        /* ===========================================
+           VERSUS LAYOUT
+           =========================================== */
+        .versus {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: clamp(16px, 3vw, 40px);
+            align-items: center;
+            width: 100%;
+        }
+        .versus-side {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .versus-side h3 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3.5vw, 3rem);
+            font-weight: 400;
+        }
+        .versus-side p {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+        }
+        .versus-divider {
+            width: 2px;
+            height: clamp(80px, 15vh, 160px);
+            background: linear-gradient(to bottom, transparent, var(--text-dim), transparent);
+        }
+        .versus-left { text-align: right; }
+        .versus-right { text-align: left; }
+
+        /* ===========================================
+           STEPS
+           =========================================== */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2.5vw, 28px);
+            width: 100%;
+            max-width: 700px;
+            text-align: left;
+        }
+        .step {
+            display: flex;
+            gap: clamp(12px, 2vw, 20px);
+            align-items: flex-start;
+        }
+        .step-num {
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem, 2vw, 1.8rem);
+            font-weight: 400;
+            color: var(--accent-warm);
+            flex-shrink: 0;
+            line-height: 1.3;
+        }
+        .step-text {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .step-text strong {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* ===========================================
+           GLOW LINE DIVIDER
+           =========================================== */
+        .glow-line {
+            width: clamp(32px, 6vw, 56px);
+            height: 2px;
+            background: var(--accent-warm);
+        }
+
+        /* ===========================================
+           TYPEWRITER CURSOR
+           =========================================== */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--accent-cool);
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-width: 768px) {
+            .nav-dots { display: none; }
+            .keyboard-hint { display: none; }
+            .card-grid--3, .card-grid--4 { grid-template-columns: repeat(2, 1fr); }
+            .card-grid--7 { grid-template-columns: repeat(2, 1fr); }
+            .split { grid-template-columns: 1fr; gap: 20px; }
+            .versus {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .versus-left, .versus-right { text-align: center; }
+            .versus-divider {
+                width: clamp(60px, 30vw, 120px);
+                height: 2px;
+                background: linear-gradient(to right, transparent, var(--text-dim), transparent);
+                justify-self: center;
+            }
+            .manifesto-list { align-items: center; text-align: center; }
+        }
+
+        /* Tweet embed: zoom down proportionally at short viewports so the iframe fits */
+        @media (max-height: 750px) {
+            .tweet-embed-wrap { zoom: 0.82; }
+        }
+        @media (max-height: 650px) {
+            .tweet-embed-wrap { zoom: 0.68; }
+        }
+
+        /* Short viewport — common on laptops (768–850px height) */
+        @media (max-height: 750px) {
+            :root {
+                --slide-padding: clamp(1.2rem, 3.5vw, 2.5rem);
+                --content-gap: clamp(0.7rem, 1.8vw, 1.5rem);
+            }
+            .title-huge        { font-size: clamp(2rem, 5.5vw, 4.5rem) !important; }
+            .big-word          { font-size: clamp(2rem, 6vw, 5rem) !important; }
+            .heading           { font-size: clamp(1.5rem, 4vw, 3rem) !important; }
+            .serif-quote       { font-size: clamp(1rem, 2.5vw, 2rem) !important; }
+            .demo-screenshot   { max-height: min(50vh, calc(100vh - 280px)); }
+            .phone-frame--video { width: clamp(130px, 16vw, 210px); height: auto; }
+            .detail-left       { gap: clamp(8px, 1.2vw, 14px); }
+        }
+
+        /* Very short viewport — tablets portrait, old laptops (~600–700px height) */
+        @media (max-height: 650px) {
+            :root {
+                --slide-padding: clamp(0.8rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.4rem, 1vw, 0.8rem);
+            }
+            .title-huge        { font-size: clamp(1.8rem, 5vw, 4rem) !important; }
+            .big-word          { font-size: clamp(1.8rem, 5vw, 4rem) !important; }
+            .heading           { font-size: clamp(1.2rem, 3.5vw, 2.5rem) !important; }
+            .serif-quote       { font-size: clamp(0.95rem, 2vw, 1.5rem) !important; }
+            .detail-emoji      { font-size: clamp(1.4rem, 2.5vw, 2.2rem); }
+            .card              { padding: clamp(10px, 1.5vw, 18px); }
+            .card-number       { font-size: clamp(1.2rem, 2vw, 2rem); }
+            .card-title        { font-size: clamp(0.78rem, 1.1vw, 1rem); }
+            .demo-screenshot   { max-height: min(42vh, calc(100vh - 260px)); }
+            .phone-frame--video { width: clamp(100px, 13vw, 160px); height: auto; }
+            .detail-left       { gap: clamp(6px, 1vw, 12px); }
+            /* Tweet slide: stack vertically so embed doesn't compete with text */
+            .slide-two-col--tweet {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: clamp(0.8rem, 1.5vw, 1.5rem);
+            }
+            .tweet-slide-left { gap: clamp(0.5rem, 1vw, 1rem); }
+            .tweet-embed-wrap  { width: min(480px, 90vw); max-height: 38vh; }
+        }
+
+        /* Landscape phones & very short windows (~500px height) */
+        @media (max-height: 500px) and (orientation: landscape) {
+            :root {
+                --slide-padding: clamp(0.4rem, 1.5vw, 0.8rem);
+                --content-gap: clamp(0.3rem, 0.8vw, 0.6rem);
+            }
+            .title-huge        { font-size: clamp(1.5rem, 5vw, 2.5rem) !important; }
+            .heading           { font-size: clamp(1.1rem, 3.5vw, 2rem) !important; }
+            .big-word          { font-size: clamp(1.5rem, 5vw, 3rem) !important; }
+            .serif-quote       { font-size: clamp(0.85rem, 1.8vw, 1.3rem) !important; }
+            .card              { padding: clamp(8px, 1vw, 12px); }
+            .card-number       { font-size: clamp(1rem, 1.8vw, 1.6rem); }
+            /* Hide right col on detail slides — only show left content */
+            .detail-right      { display: none !important; }
+            .detail-layout     { grid-template-columns: 1fr !important; }
+            .demo-screenshot   { max-height: 40vh; }
+        }
+
+        /* ===========================================
+           REDUCED MOTION
+           =========================================== */
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .reveal-scale, .reveal-left, .reveal-right, .reveal-blur {
+                transition: opacity 0.3s ease;
+                transform: none !important;
+                filter: none !important;
+            }
+            .orb { animation: none; }
+            .gradient-text { animation: none; }
+        }
+
+        /* ===========================================
+           SLIDE-SPECIFIC STYLES
+           =========================================== */
+
+        /* Title slide — extra spacing */
+        .slide--title .slide-content {
+            gap: clamp(16px, 3vw, 32px);
+        }
+        .slide--title .subtitle-line {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+        .slide--title .subtitle-line .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--accent-cool);
+        }
+
+        /* ===========================================
+           TITLE SLIDE — TWO-COLUMN WITH BLOB PORTRAIT
+           Left: text / Right: photo with rotating border
+           =========================================== */
+        .title-layout {
+            flex-direction: row !important;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(2.5rem, 5vw, 7rem);
+            text-align: left;
+        }
+        .title-text-col {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: clamp(14px, 2.5vw, 28px);
+            text-align: left;
+        }
+        .title-blob-col {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* The blob SVG */
+        .blob-portrait {
+            width: clamp(200px, 26vw, 360px);
+            height: clamp(200px, 26vw, 360px);
+            overflow: visible;
+            filter: drop-shadow(0 0 28px rgba(212, 255, 44, 0.18));
+        }
+
+        /* Rotating text along the border */
+        .blob-text {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 7.5px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            fill: var(--accent-cool);
+        }
+
+        @media (max-width: 900px) {
+            .title-layout {
+                flex-direction: column !important;
+                align-items: center;
+                text-align: center;
+            }
+            .title-text-col {
+                align-items: center;
+                text-align: center;
+            }
+            .blob-portrait {
+                width: clamp(160px, 45vw, 220px);
+                height: clamp(160px, 45vw, 220px);
+            }
+        }
+
+        /* Quote slide — serif centered */
+        .slide--quote .slide-content {
+            max-width: 900px;
+        }
+
+        /* Core message — max impact */
+        .slide--core .slide-content {
+            max-width: 950px;
+        }
+        .slide--core .core-prefix {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: clamp(1.1rem, 2vw, 1.6rem);
+            color: var(--text-secondary);
+        }
+        .slide--core .core-main {
+            font-family: var(--font-serif);
+            font-size: clamp(1.6rem, 4.5vw, 3.8rem);
+            font-weight: 400;
+            line-height: 1.25;
+            color: var(--text-primary);
+        }
+        .slide--core .core-main em {
+            font-style: italic;
+            background: var(--gradient-warm-cool);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+        }
+        /* ===========================================
+           CONTENT REMIX — Overview card styles
+           =========================================== */
+        .remix-card {
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .remix-emoji {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            line-height: 1;
+        }
+        .remix-tag {
+            margin-top: 4px;
+            font-size: clamp(0.6rem, 0.75vw, 0.75rem);
+        }
+        .remix-card:hover {
+            border-color: rgba(78, 205, 196, 0.35);
+            box-shadow: 0 8px 32px rgba(78, 205, 196, 0.12);
+        }
+        .remix-card .card-title {
+            font-size: clamp(0.8rem, 1.2vw, 1.05rem);
+        }
+
+        /* ===========================================
+           CONTENT REMIX — Detail slide layout
+           =========================================== */
+        .detail-back {
+            align-self: flex-start;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+        }
+        .detail-back:hover {
+            border-color: var(--accent-cool);
+            color: var(--accent-cool);
+        }
+        .detail-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(20px, 4vw, 64px);
+            align-items: center;
+            width: 100%;
+            text-align: left;
+        }
+        .detail-left {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(10px, 1.5vw, 16px);
+        }
+        .detail-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .detail-emoji {
+            font-size: clamp(2rem, 3.5vw, 3.5rem);
+            line-height: 1;
+        }
+        .detail-image-placeholder {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 16/10;
+            min-height: 160px;
+            flex-direction: column;
+            gap: 10px;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+        }
+
+        /* ===========================================
+           CSV SLIDE — compact header layout
+           =========================================== */
+        .csv-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            gap: 20px;
+            text-align: left;
+        }
+
+        /* ===========================================
+           IMAGE COMPARISON SLIDER
+           Mouse X position drives clip-path reveal.
+           --split CSS variable is set by JS.
+           =========================================== */
+        .img-compare {
+            position: relative;
+            /* Size container to the "after" image's native aspect ratio (2166×1098 ≈ 1.97:1).
+               Width is constrained so it doesn't span the full slide. */
+            width: min(72vw, 860px);
+            aspect-ratio: 2166 / 1098;
+            height: auto;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: crosshair;
+            user-select: none;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.4),
+                0 16px 48px rgba(0,0,0,0.5);
+            --split: 0%;  /* updated by JS on mousemove */
+            flex-shrink: 0;
+        }
+
+        /* Base image — the "before" (bottom layer, always visible).
+           object-fit: cover fills the container edge-to-edge with no letterbox. */
+        .img-compare-before {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Reveal image — the "after" (top layer, clipped by CSS var) */
+        .img-compare-after {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            z-index: 2;
+            pointer-events: none;
+            /* clip from the right: as --split grows (0→100%), more is revealed */
+            clip-path: inset(0 calc(100% - var(--split)) 0 0);
+        }
+
+        /* Smooth ease-back when mouse leaves */
+        .img-compare.returning .img-compare-after {
+            transition: clip-path 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Vertical divider line at the split point */
+        .img-compare-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: var(--split);
+            width: 2px;
+            background: var(--accent-warm);
+            z-index: 4;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px rgba(212, 255, 44, 0.6);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        /* Handle circle on the divider */
+        .img-compare-line::after {
+            content: '⟵ ⟶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            color: var(--bg-deep);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+            white-space: nowrap;
+        }
+        .img-compare:hover .img-compare-line {
+            opacity: 1;
+        }
+
+        /* BEFORE / AFTER corner labels */
+        .img-compare-label {
+            position: absolute;
+            top: 12px;
+            z-index: 5;
+            font-family: var(--font-mono);
+            font-size: clamp(0.55rem, 0.8vw, 0.7rem);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 100px;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .img-compare-label-before {
+            left: 12px;
+            background: rgba(14, 13, 11, 0.78);
+            backdrop-filter: blur(4px);
+            color: var(--text-secondary);
+            border: 1px solid rgba(240, 236, 224, 0.12);
+        }
+        .img-compare-label-after {
+            right: 12px;
+            background: rgba(212, 255, 44, 0.88);
+            color: #0e0d0b;
+            font-weight: 700;
+        }
+
+        /* "Move mouse to reveal" hint — fades on first interaction */
+        .img-compare-hint {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            font-family: var(--font-mono);
+            font-size: clamp(0.6rem, 0.8vw, 0.72rem);
+            color: white;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(6px);
+            padding: 5px 16px;
+            border-radius: 100px;
+            pointer-events: none;
+            white-space: nowrap;
+            transition: opacity 0.5s ease;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+        .img-compare-hint.hidden {
+            opacity: 0 !important;
+            animation: none;
+        }
+
+        /* Professional screenshot frame */
+        .demo-screenshot-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+        }
+        .demo-screenshot-wrap::before {
+            display: none;
+        }
+        .demo-screenshot {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: auto;
+            max-height: min(56vh, calc(100vh - 300px));
+            object-fit: contain;
+            object-position: top center;
+            border-radius: 6px;
+            border: 1px solid rgba(240, 236, 224, 0.1);
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.5),
+                0 16px 48px rgba(0, 0, 0, 0.5);
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .detail-layout { grid-template-columns: 1fr; }
+            .detail-right { display: none; }
+        }
+
+        /* ===========================================
+           CYCLING TEXT — Code Can slide
+           =========================================== */
+        .slide--cycling .slide-content {
+            justify-content: center;
+        }
+        .cycling-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(12px, 2vw, 24px);
+            cursor: pointer;
+            user-select: none;
+        }
+        .cycling-prefix {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 4.5vw, 3.5rem);
+            font-weight: 400;
+            color: var(--text-primary);
+            letter-spacing: 0;
+        }
+        .cycling-text-box {
+            overflow: hidden;
+            position: relative;
+            min-height: clamp(4rem, 10vw, 8rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cycling-predicate {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 8vw, 7rem);
+            font-weight: 400;
+            line-height: 1.05;
+            letter-spacing: 0;
+            color: var(--accent-warm);
+            display: block;
+            text-align: center;
+            transition: opacity 0.25s ease, transform 0.3s var(--ease-out-expo);
+        }
+        .cycling-predicate.exiting {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .cycling-predicate.entering {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .cycling-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .cycling-progress {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+        }
+        .cycling-hint {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dim);
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+        .cycling-hint.done {
+            animation: none;
+            color: var(--accent-cool);
+            opacity: 0.7;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ===========================================
+           CARD EXPAND MODAL
+           =========================================== */
+        .card-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 9, 8, 0.92);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .card-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .expanded-card {
+            background: var(--bg-surface);
+            border: 1px solid rgba(240, 236, 224, 0.12);
+            border-radius: 8px;
+            padding: clamp(28px, 5vw, 52px);
+            max-width: min(90vw, 560px);
+            width: 100%;
+            position: relative;
+            transform: translateY(24px) scale(0.97);
+            transition: transform 0.4s var(--ease-out-expo);
+        }
+        .card-overlay.open .expanded-card {
+            transform: translateY(0) scale(1);
+        }
+        .expanded-card-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .expanded-card-close:hover {
+            background: rgba(255,255,255,0.12);
+            color: var(--text-primary);
+        }
+        .expanded-card-num {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 400;
+            background: var(--gradient-warm-cool);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+        .expanded-card-title {
+            font-family: var(--font-body);
+            font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            line-height: 1.25;
+        }
+        .expanded-card-desc {
+            font-family: var(--font-body);
+            font-size: clamp(1rem, 1.6vw, 1.15rem);
+            color: var(--text-secondary);
+            line-height: 1.75;
+        }
+        .expanded-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: clamp(16px, 2vw, 28px);
+            padding-top: 14px;
+            border-top: 1px solid rgba(240, 236, 224, 0.08);
+        }
+        .expanded-card-nav {
+            background: transparent;
+            border: 1px solid rgba(240, 236, 224, 0.15);
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+        .expanded-card-nav:hover:not(:disabled) {
+            background: rgba(212, 255, 44, 0.08);
+            border-color: var(--accent-warm);
+            color: var(--accent-warm);
+        }
+        .expanded-card-nav:disabled { opacity: 0.22; cursor: default; }
+        .expanded-card-counter {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+        }
+        /* Lesson card expand hint */
+        .lesson-card {
+            cursor: pointer;
+        }
+        .card-expand-hint {
+            font-family: var(--font-mono);
+            font-size: clamp(0.6rem, 0.75vw, 0.7rem);
+            color: var(--text-dim);
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .lesson-card:hover .card-expand-hint {
+            opacity: 1;
+        }
+
+        /* ===========================================
+           FANCY EFFECTS — Inspired by danielpetho/fancy
+           Text scramble, cursor proximity, breathing, etc.
+           =========================================== */
+
+        /* Scramble character — random chars shown during scramble animation */
+        .scramble-char {
+            color: var(--accent-cool);
+            opacity: 0.7;
+        }
+
+        /* Scramble hover — card titles and interactive text */
+        [data-scramble-hover] {
+            cursor: default;
+        }
+
+        /* Cursor proximity — manifesto items glow when cursor is near */
+        .manifesto-item[data-proximity] {
+            transition: opacity 0.15s ease, transform 0.2s ease, letter-spacing 0.3s ease;
+            will-change: opacity, transform;
+        }
+
+        /* Breathing text — slow pulse on the closing CTA */
+        .breathing {
+            animation: breathe 4s ease-in-out infinite;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+        }
+
+        /* Pixel trail cursor — grid of fading squares that follow mouse */
+        /* Hide default cursor globally — pixel trail provides the cursor */
+        * { cursor: none !important; }
+
+        .pixel-trail-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            pointer-events: none;
+        }
+
+        /* 6×6 chartreuse square that IS the cursor */
+        #pixel-cursor {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-warm);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: none;
+        }
+
+        /* Floating tags — gentle physics-driven motion */
+        .floating-tag {
+            transition: transform 0.1s linear;
+            display: inline-block;
+        }
+
+        /* Variable font proximity — letters respond to cursor distance */
+        .char-proximity {
+            display: inline-block;
+            transition: font-weight 0.1s ease, opacity 0.15s ease, color 0.2s ease;
+            will-change: font-weight, opacity;
+        }
+
+        /* Scramble-in reveal — text scrambles on slide enter */
+        .scramble-in {
+            visibility: hidden;
+        }
+        .scramble-in.scrambled {
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+         BACKGROUND EFFECTS
+         ============================================ -->
+    <canvas id="constellation"></canvas>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- ============================================
+         NAVIGATION CHROME
+         ============================================ -->
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+    <div class="slide-counter">
+        <span class="current-num" id="counterCurrent">01</span>
+        <span> / </span>
+        <span id="counterTotal">12</span>
+    </div>
+    <div class="keyboard-hint" id="keyboardHint">← → or scroll to navigate</div>
+
+    <!-- ============================================
+         SLIDES
+         ============================================ -->
+    <div class="slides-wrapper" id="slidesWrapper">
+
+        <!-- ========== SLIDE 1: TITLE ========== -->
+        <section class="slide slide--title active" data-title="Title">
+            <div class="slide-content title-layout">
+
+                <!-- Left: text content -->
+                <div class="title-text-col">
+                    <div class="glow-line reveal delay-1"></div>
+                    <h1 class="title-huge reveal delay-2">
+                        Code as a Medium<br>for <span class="gradient-text">Storytelling</span>
+                    </h1>
+                    <div class="subtitle-line reveal delay-4">
+                        <span>Zara</span>
+                        <span class="dot"></span>
+                        <span>Vibe Code Jam</span>
+                    </div>
+                </div>
+
+                <!-- Right: blob portrait with rotating text border -->
+                <div class="title-blob-col reveal delay-3">
+                    <svg class="blob-portrait" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Zara">
+                        <defs>
+                            <!-- Chartreuse → cream gradient matching the new deck palette -->
+                            <linearGradient id="zaraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%"   stop-color="#d4ff2c"/>
+                                <stop offset="100%" stop-color="#f0ece0"/>
+                            </linearGradient>
+                            <!-- Blob clip mask -->
+                            <clipPath id="zaraBlobClip">
+                                <path class="zaraBlobClipPath"
+                                      d="M43.1,-68.5C56.2,-58.6,67.5,-47.3,72.3,-33.9C77.2,-20.5,75.5,-4.9,74.2,11.3C72.9,27.6,71.9,44.5,63.8,57.2C55.7,69.8,40.6,78.2,25.5,79.2C10.4,80.1,-4.7,73.6,-20.9,69.6C-37.1,65.5,-54.5,63.9,-66,54.8C-77.5,45.8,-83.2,29.3,-85.7,12.3C-88.3,-4.8,-87.7,-22.3,-79.6,-34.8C-71.5,-47.3,-55.8,-54.9,-41.3,-64.2C-26.7,-73.6,-13.4,-84.7,0.8,-86C15,-87.2,29.9,-78.5,43.1,-68.5Z"
+                                      transform="translate(100 100)"/>
+                            </clipPath>
+                        </defs>
+
+                        <!-- Profile photo clipped into the blob shape -->
+                        <image href="zara-profile.png"
+                               width="200" height="200"
+                               preserveAspectRatio="xMidYMid slice"
+                               clip-path="url(#zaraBlobClip)"/>
+
+                        <!-- Gradient stroke outlining the blob -->
+                        <path d="M43.1,-68.5C56.2,-58.6,67.5,-47.3,72.3,-33.9C77.2,-20.5,75.5,-4.9,74.2,11.3C72.9,27.6,71.9,44.5,63.8,57.2C55.7,69.8,40.6,78.2,25.5,79.2C10.4,80.1,-4.7,73.6,-20.9,69.6C-37.1,65.5,-54.5,63.9,-66,54.8C-77.5,45.8,-83.2,29.3,-85.7,12.3C-88.3,-4.8,-87.7,-22.3,-79.6,-34.8C-71.5,-47.3,-55.8,-54.9,-41.3,-64.2C-26.7,-73.6,-13.4,-84.7,0.8,-86C15,-87.2,29.9,-78.5,43.1,-68.5Z"
+                              transform="translate(100 100)"
+                              fill="none"
+                              stroke="url(#zaraGrad)"
+                              stroke-width="2.5"/>
+
+                        <!-- Invisible path for text to orbit along -->
+                        <path id="zaraTextPath"
+                              d="M43.1,-68.5C56.2,-58.6,67.5,-47.3,72.3,-33.9C77.2,-20.5,75.5,-4.9,74.2,11.3C72.9,27.6,71.9,44.5,63.8,57.2C55.7,69.8,40.6,78.2,25.5,79.2C10.4,80.1,-4.7,73.6,-20.9,69.6C-37.1,65.5,-54.5,63.9,-66,54.8C-77.5,45.8,-83.2,29.3,-85.7,12.3C-88.3,-4.8,-87.7,-22.3,-79.6,-34.8C-71.5,-47.3,-55.8,-54.9,-41.3,-64.2C-26.7,-73.6,-13.4,-84.7,0.8,-86C15,-87.2,29.9,-78.5,43.1,-68.5Z"
+                              transform="translate(100 100)"
+                              fill="none" stroke="none"
+                              pathLength="100"/>
+
+                        <!-- Text that orbits the border continuously -->
+                        <text class="blob-text">
+                            <textPath href="#zaraTextPath" startOffset="0%">✦ VIBE CODER ✦ STORYTELLER ✦ AI PM ✦ MAKER ✦ VIBE CODER ✦ STORYTELLER ✦ AI PM ✦ MAKER
+                                <animate attributeName="startOffset" from="0%" to="100%" dur="14s" repeatCount="indefinite"/>
+                            </textPath>
+                            <textPath href="#zaraTextPath" startOffset="-100%">✦ VIBE CODER ✦ STORYTELLER ✦ AI PM ✦ MAKER ✦ VIBE CODER ✦ STORYTELLER ✦ AI PM ✦ MAKER
+                                <animate attributeName="startOffset" from="-100%" to="0%" dur="14s" repeatCount="indefinite"/>
+                            </textPath>
+                        </text>
+                    </svg>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 2: WHO I AM ========== -->
+        <section class="slide" data-title="Who I Am">
+            <div class="slide-content">
+                <p class="serif-quote reveal delay-1">"I never thought of myself<br>as a coder"</p>
+                <div class="glow-line reveal delay-2"></div>
+                <div class="tags-row reveal delay-3">
+                    <span class="tag">AI Product Manager</span>
+                    <span class="tag">Content Creator</span>
+                    <span class="tag">Humanities Major</span>
+                </div>
+                <p class="body-text reveal delay-4" style="max-width: 600px;">
+                    More comfortable with words, not numbers.<br>
+                    Had always categorized myself as <span class="accent-warm">"non-technical."</span>
+                </p>
+                <p class="body-text reveal delay-5">
+                    Then I discovered AI coding agents&nbsp;&mdash;&nbsp;and a new identity:
+                    <span class="tag--cool tag" style="margin-left: 6px;">Vibe Coder</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 3: THE TURNING POINT ========== -->
+        <section class="slide" data-title="The Turning Point">
+            <div class="slide-content">
+                <div class="big-three">
+                    <span class="big-word reveal delay-1">Work.</span>
+                    <span class="big-word reveal delay-2">Family.</span>
+                    <span class="big-word reveal delay-3">Claude Code.</span>
+                </div>
+                <div class="glow-line reveal delay-4"></div>
+                <p class="subheading reveal delay-5" style="max-width: 650px;">
+                    "A newfound freedom to <span class="accent-cool">express my ideas</span> through code"
+                </p>
+                <p class="body-text reveal delay-6" style="opacity: 0.7;">
+                    My projects aren't technically complex — but they've gone viral.
+                </p>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 4: FRONTEND SLIDES ========== -->
+        <section class="slide" data-title="Frontend Slides">
+            <div class="slide-content slide-two-col--tweet">
+                <!-- Left: text content -->
+                <div class="tweet-slide-left">
+                    <h2 class="heading reveal delay-1">
+                        Why can't we make<br><span class="gradient-text">slides via code?</span>
+                    </h2>
+                    <p class="body-text reveal delay-3">Give it free reign. See what it comes up with.</p>
+                    <div class="stats-row reveal delay-4">
+                        <div class="stat">
+                            <div class="stat-value accent-gold" data-count="800">0</div>
+                            <div class="stat-label">GitHub ★</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value accent-cool" data-count="300" data-suffix="k">0</div>
+                            <div class="stat-label">social views</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: live tweet embed -->
+                <div class="tweet-embed-wrap reveal-scale delay-2">
+                    <blockquote class="twitter-tweet" data-width="440"><p lang="en" dir="ltr">I created a Claude Skill that make beautiful slides on the web. The world hasn&#39;t woken up to the fact that code can create much better slides than most PPT tools.<br><br>- Claude interviews you first about aesthetics, then generate a few directions to &quot;show not tell&quot;, and you can pick… <a href="https://t.co/6Ila7yBTTV">pic.twitter.com/6Ila7yBTTV</a></p>&mdash; Zara Zhang (@zarazhangrui) <a href="https://twitter.com/zarazhangrui/status/2016337615843434646?ref_src=twsrc%5Etfw">January 28, 2026</a></blockquote>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 5: CONTENT REMIX OVERVIEW ========== -->
+        <section class="slide" id="slide-remix-overview" data-title="Content Remix">
+            <div class="slide-content">
+                <h2 class="heading reveal delay-1">Content <span class="gradient-text">Remix</span></h2>
+                <p class="body-text reveal delay-2" style="margin-bottom: 8px;">Click any card to explore</p>
+                <div class="card-grid card-grid--4 reveal delay-3" style="max-width: 1000px;">
+                    <div class="card remix-card" data-tilt data-goto="slide-yt-book">
+                        <div class="remix-emoji">📹 → 📖</div>
+                        <div class="card-title">YouTube → Book</div>
+                        <div class="remix-tag tag tag--cool">EPUB · Weekly</div>
+                    </div>
+                    <div class="card remix-card" data-tilt data-goto="slide-csv-dash">
+                        <div class="remix-emoji">📊 → 📈</div>
+                        <div class="card-title">CSV → Dashboard</div>
+                        <div class="remix-tag tag tag--cool">Interactive · Analytics</div>
+                    </div>
+                    <div class="card remix-card" data-tilt data-goto="slide-codebase">
+                        <div class="remix-emoji">💻 → 💬</div>
+                        <div class="card-title">Codebase → Group Chat</div>
+                        <div class="remix-tag tag tag--cool">Visualization · Architecture</div>
+                    </div>
+                    <div class="card remix-card" data-tilt data-goto="slide-vocab">
+                        <div class="remix-emoji">📄 → 📱</div>
+                        <div class="card-title">Vocab PDF → Wallpapers</div>
+                        <div class="remix-tag tag tag--cool">iPhone · Daily learning</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 6: DETAIL — YouTube → Book ========== -->
+        <section class="slide" id="slide-yt-book" data-title="YouTube → Book">
+            <div class="slide-content">
+                <button class="detail-back reveal delay-1" data-goto="slide-remix-overview">← Content Remix</button>
+                <div class="detail-layout reveal delay-2" style="max-width: 960px;">
+                    <div class="detail-left">
+                        <div class="detail-emoji">📹 → 📖</div>
+                        <h2 class="heading" style="text-align:left;">YouTube / Podcast → <span class="accent-cool">Polished Book</span></h2>
+                        <p class="body-text">
+                            A weekly workflow that takes any long-form video, fetches its transcript,
+                            and rewrites it into a polished magazine-style article —
+                            delivered to your inbox as an EPUB file.
+                        </p>
+                        <p class="body-text" style="margin-top: 8px; color: var(--text-dim);">
+                            Favourite podcasts become readable essays you can actually finish.
+                        </p>
+                        <a href="#" class="demo-link" style="margin-top: 16px;">▶ View Demo</a>
+                        <!-- [INSERT DEMO LINK] -->
+                    </div>
+                    <div class="detail-right">
+                        <div class="demo-screenshot-wrap">
+                            <img
+                                src="YouTube to ebook 1.png"
+                                alt="YouTube Digest email — polished article delivered as EPUB"
+                                class="demo-screenshot"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 7: DETAIL — CSV → Dashboard ========== -->
+        <section class="slide" id="slide-csv-dash" data-title="CSV → Dashboard">
+            <div class="slide-content" style="gap: clamp(10px, 1.5vw, 18px);">
+                <button class="detail-back reveal delay-1" data-goto="slide-remix-overview">← Content Remix</button>
+
+                <!-- Compact top header row -->
+                <div class="csv-header reveal delay-2">
+                    <div>
+                        <div class="detail-emoji" style="margin-bottom: 6px;">📊 → 📈</div>
+                        <h2 class="heading" style="text-align:left; font-size: clamp(1.4rem, 3.5vw, 2.8rem);">
+                            CSV File → <span class="accent-cool">Interactive Dashboard</span>
+                        </h2>
+                        <p class="body-text" style="margin-top: 6px;">
+                            Raw Twitter analytics → live follower growth chart + content-market fit analysis.
+                            <span style="color: var(--text-dim);">Any boring spreadsheet can become this.</span>
+                        </p>
+                    </div>
+                    <a href="#" class="demo-link" style="flex-shrink:0;">▶ View Demo</a>
+                    <!-- [INSERT DEMO LINK] -->
+                </div>
+
+                <!-- Before / After image comparison — move mouse right to reveal -->
+                <div class="img-compare reveal-scale delay-3" id="imgCompare">
+                    <!-- BEFORE: raw CSV / Excel spreadsheet (bottom layer, always visible) -->
+                    <img src="X analytics before.png"
+                         class="img-compare-before"
+                         alt="Before: Raw CSV analytics in Excel"
+                         draggable="false">
+
+                    <!-- AFTER: interactive dashboard (top layer, revealed by mouse) -->
+                    <img src="X analytics after.png"
+                         class="img-compare-after"
+                         alt="After: Interactive growth dashboard"
+                         draggable="false">
+
+                    <!-- Divider line that follows cursor -->
+                    <div class="img-compare-line" id="imgCompareLine"></div>
+
+                    <!-- Corner labels -->
+                    <span class="img-compare-label img-compare-label-before">BEFORE</span>
+                    <span class="img-compare-label img-compare-label-after">AFTER</span>
+
+                    <!-- Hint fades away on first interaction -->
+                    <div class="img-compare-hint" id="imgCompareHint">
+                        move mouse right to reveal →
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 8: DETAIL — Codebase → Group Chat ========== -->
+        <section class="slide" id="slide-codebase" data-title="Codebase → Group Chat">
+            <div class="slide-content">
+                <button class="detail-back reveal delay-1" data-goto="slide-remix-overview">← Content Remix</button>
+                <div class="detail-layout reveal delay-2" style="max-width: 960px;">
+                    <div class="detail-left">
+                        <div class="detail-emoji">💻 → 💬</div>
+                        <h2 class="heading" style="text-align:left;">Codebase<br>→ <span class="accent-cool">Group Chat</span></h2>
+                        <p class="body-text">
+                            Asked Claude Code to build a webpage that visualizes my codebase —
+                            showing how all the parts connect.
+                        </p>
+                        <p class="body-text" style="margin-top: 8px;">
+                            Then made it turn the conversations between services into a
+                            <span class="accent-warm">group chat interface.</span>
+                            Architecture as dialogue.
+                        </p>
+                        <a href="#" class="demo-link" style="margin-top: 16px;">▶ View Demo</a>
+                        <!-- [INSERT DEMO LINK] -->
+                    </div>
+                    <div class="detail-right">
+                        <div class="demo-screenshot-wrap">
+                            <img
+                                src="Codebase to groupchat.jpeg"
+                                alt="Codebase architecture visualized as a group chat conversation"
+                                class="demo-screenshot"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 9: DETAIL — Vocab Lock Screen ========== -->
+        <section class="slide" id="slide-vocab" data-title="Vocab Lock Screen">
+            <div class="slide-content">
+                <button class="detail-back reveal delay-1" data-goto="slide-remix-overview">← Content Remix</button>
+                <div class="detail-layout reveal delay-2" style="max-width: 960px;">
+                    <div class="detail-left">
+                        <div class="detail-emoji">📄 → 📱</div>
+                        <h2 class="heading" style="text-align:left;">Vocab PDF<br>→ <span class="accent-cool">Phone Wallpapers</span></h2>
+                        <p class="body-text">
+                            Japanese vocab PDF → 9:16 wallpaper images generated by code
+                            (not image gen!). Set wallpaper shuffle on iPhone.
+                        </p>
+
+                        <p class="body-text" style="margin-top: 12px; color: var(--accent-warm);">
+                            You can design stuff with code — not just image gen models.
+                        </p>
+                        <a href="#" class="demo-link" style="margin-top: 16px;">▶ View Demo</a>
+                        <!-- [INSERT DEMO LINK] -->
+                    </div>
+                    <div class="detail-right" style="align-items: center;">
+                        <div class="phone-frame phone-frame--video">
+                            <div class="phone-screen phone-screen--video">
+                                <video
+                                    id="vocabVideo"
+                                    src="Vocab lockscreen.MP4"
+                                    class="phone-video"
+                                    muted
+                                    loop
+                                    playsinline
+                                    preload="auto"
+                                ></video>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 10: CORE MESSAGE ========== -->
+        <section class="slide slide--core" data-title="Core Message">
+            <div class="slide-content">
+                <p class="core-prefix reveal delay-1">
+                    I didn't pivot from storyteller to coder.
+                </p>
+                <div class="glow-line reveal delay-2"></div>
+                <p class="core-main reveal-blur delay-3">
+                    I've always been a storyteller.<br>
+                    I just discovered a <em>new medium.</em>
+                </p>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 11: CODE CAN (CYCLING) ========== -->
+        <section class="slide slide--cycling" id="code-can-slide" data-title="Everything is Code">
+            <div class="slide-content">
+                <div class="cycling-wrapper">
+                    <p class="cycling-prefix reveal delay-1">Code can</p>
+                    <div class="cycling-text-box reveal delay-2">
+                        <span class="cycling-predicate" id="cyclingPredicate">make slides</span>
+                    </div>
+                    <div class="cycling-meta reveal delay-3">
+                        <span class="cycling-progress" id="cyclingProgress">1 / 4</span>
+                        <span class="cycling-hint" id="cyclingHint">click anywhere to continue</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 9: ENGINEERING vs CODING ========== -->
+        <section class="slide" data-title="Engineering vs Coding">
+            <div class="slide-content">
+                <div class="versus reveal delay-1">
+                    <div class="versus-side versus-left">
+                        <h3 class="accent-warm">Engineering</h3>
+                        <p>is a career</p>
+                        <p>is a discipline</p>
+                        <p>requires years of training</p>
+                    </div>
+                    <div class="versus-divider"></div>
+                    <div class="versus-side versus-right">
+                        <h3 class="accent-cool">Coding</h3>
+                        <p>is just a tool</p>
+                        <p>is for everyone</p>
+                        <p>needs only an idea</p>
+                    </div>
+                </div>
+                <div class="glow-line reveal delay-3"></div>
+                <p class="serif-quote reveal delay-4" style="font-size: clamp(1rem, 2.2vw, 1.8rem);">
+                    "99.9% of people never need to build anything in production.<br>
+                    But everybody can use code to <span class="accent-gold">improve their own lives.</span>"
+                </p>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 10: LESSONS ========== -->
+        <section class="slide" data-title="7 Lessons">
+            <div class="slide-content">
+                <h2 class="heading reveal delay-1" style="margin-bottom: 4px;">
+                    <span class="gradient-text">7</span> Lessons
+                </h2>
+                <p class="body-text reveal delay-2" style="margin-bottom: 4px; opacity: 0.6;">Click any card to read more</p>
+                <div class="card-grid card-grid--7 reveal delay-3" style="max-width: 1050px;">
+                    <div class="card lesson-card" data-tilt data-expandable
+                         data-num="01" data-card-title="Context, not control"
+                         data-full-desc="Give the AI context about what you want to achieve, then let it figure out how. Don't micromanage the steps — describe the destination. It's smarter than you think, and often smarter than your specific instructions.">
+                        <div class="card-number">01</div>
+                        <div class="card-title">Context, not control</div>
+                        <div class="card-expand-hint">Click to read more</div>
+                    </div>
+                    <div class="card lesson-card" data-tilt data-expandable
+                         data-num="02" data-card-title="Push until it breaks"
+                         data-full-desc="Don't accept the first result. Keep pushing, asking for more, requesting variations. Push it until it fails at something — only then do you truly understand its limits. The limits are further than you think.">
+                        <div class="card-number">02</div>
+                        <div class="card-title">Push until it breaks</div>
+                        <div class="card-expand-hint">Click to read more</div>
+                    </div>
+                    <div class="card lesson-card" data-tilt data-expandable
+                         data-num="03" data-card-title="Put in the reps"
+                         data-full-desc="There's no magical prompt template or shortcut that will suddenly make you an expert. Like everything else in life, you just need to put in the reps. The more you build, the better your intuition becomes for what works.">
+                        <div class="card-number">03</div>
+                        <div class="card-title">Put in the reps</div>
+                        <div class="card-expand-hint">Click to read more</div>
+                    </div>
+                    <div class="card lesson-card" data-tilt data-expandable
+                         data-num="04" data-card-title="Try everything. Waste tokens."
+                         data-full-desc="Do playful experiments. Do things that would seem like overkill. Try silly ideas. The best discoveries happen when you're not being sensible. Tokens are cheap. Curiosity is the real currency.">
+                        <div class="card-number">04</div>
+                        <div class="card-title">Try everything. Waste tokens.</div>
+                        <div class="card-expand-hint">Click to read more</div>
+                    </div>
+                    <div class="card lesson-card" data-tilt data-expandable
+                         data-num="05" data-card-title="Build in public"
+                         data-full-desc="The best textbook is Twitter (X), and the best teachers are people who are slightly more advanced than you and share their work openly. Share your progress — even the messy parts. You'll learn faster and find your people.">
+                        <div class="card-number">05</div>
+                        <div class="card-title">Build in public</div>
+                        <div class="card-expand-hint">Click to read more</div>
+                    </div>
+                    <div class="card lesson-card" data-tilt data-expandable
+                         data-num="06" data-card-title="Make it fun"
+                         data-full-desc="There have been times I've literally chuckled at Claude's output — it's charming, creative, and genuinely surprising. Lean into the joy. If it stops being fun, you're probably being too serious about it.">
+                        <div class="card-number">06</div>
+                        <div class="card-title">Make it fun</div>
+                        <div class="card-expand-hint">Click to read more</div>
+                    </div>
+                    <div class="card lesson-card" data-tilt data-expandable
+                         data-num="07" data-card-title="If you can talk, you can vibe code"
+                         data-full-desc="Don't be intimidated by the terminal. If you can articulate what you want to build, you can vibe code. The hardest part isn't the coding — it's coming up with something worth building, and making people care once you've built it.">
+                        <div class="card-number">07</div>
+                        <div class="card-title">If you can talk,<br>you can vibe code</div>
+                        <div class="card-expand-hint">Click to read more</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 11: GETTING STARTED ========== -->
+        <section class="slide" data-title="Getting Started">
+            <div class="slide-content">
+                <h2 class="heading reveal delay-1">Start <span class="gradient-text">Here</span></h2>
+                <div class="steps">
+                    <div class="step reveal delay-2">
+                        <span class="step-num">01</span>
+                        <span class="step-text">
+                            <strong>Turn Word / Excel / PowerPoint</strong> into an interactive webpage. It's the easiest on-ramp.
+                        </span>
+                    </div>
+                    <div class="step reveal delay-3">
+                        <span class="step-num">02</span>
+                        <span class="step-text">
+                            <strong>No idea what to build?</strong> Scan this QR code — an AI-powered tool that generates personalized project ideas matched to your skill level, with ready-to-use prompts.
+                        </span>
+                    </div>
+                    <div class="step reveal delay-4" style="align-items: center;">
+                        <div class="qr-placeholder placeholder">
+                            <!-- [INSERT QR CODE IMAGE HERE] -->
+                            <span>QR Code</span>
+                        </div>
+                    </div>
+                    <div class="step reveal delay-5">
+                        <span class="step-num">03</span>
+                        <span class="step-text">
+                            <strong>Need setup help?</strong> Visit our tech support station — a volunteer will help you get Claude Code running on your machine.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== SLIDE 12: CLOSING ========== -->
+        <section class="slide slide--title" data-title="Closing">
+            <div class="slide-content">
+                <div class="glow-line reveal delay-1"></div>
+                <h2 class="title-huge reveal delay-2" style="font-size: clamp(2rem, 6vw, 5rem);">
+                    If you can talk,<br>you can <span class="gradient-text">vibe code.</span>
+                </h2>
+                <p class="subheading reveal delay-4" style="max-width: 650px;">
+                    The hardest part isn't the coding.<br>
+                    It's coming up with something interesting to build.
+                </p>
+                <div class="glow-line reveal delay-5"></div>
+                <p class="body-text reveal delay-6 breathing" style="font-size: var(--subheading-size); color: var(--text-primary);">
+                    Now go build something.
+                </p>
+            </div>
+        </section>
+
+    </div><!-- /slides-wrapper -->
+
+    <!-- ============================================
+         JAVASCRIPT
+         ============================================ -->
+    <script>
+    (function() {
+        'use strict';
+
+        /* ===========================================
+           CONSTELLATION PARTICLE SYSTEM
+           Draws a network of floating, connected dots
+           on a fixed canvas behind all slides.
+           =========================================== */
+        class Constellation {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.particles = [];
+                this.mouse = { x: -1000, y: -1000 };
+                this.connectionDistance = 120;
+                this.particleCount = window.innerWidth < 768 ? 35 : 65;
+
+                this.resize();
+                this.init();
+                this.bindEvents();
+                this.animate();
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            init() {
+                this.particles = [];
+                for (let i = 0; i < this.particleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3,
+                        size: Math.random() * 1.5 + 0.5,
+                        opacity: Math.random() * 0.4 + 0.1,
+                    });
+                }
+            }
+
+            bindEvents() {
+                window.addEventListener('resize', () => {
+                    this.resize();
+                    this.init();
+                });
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                });
+            }
+
+            animate() {
+                if (document.hidden) {
+                    requestAnimationFrame(() => this.animate());
+                    return;
+                }
+
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Update & draw particles
+                for (const p of this.particles) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Wrap around edges
+                    if (p.x < 0) p.x = this.canvas.width;
+                    if (p.x > this.canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = this.canvas.height;
+                    if (p.y > this.canvas.height) p.y = 0;
+
+                    // Gentle mouse repulsion
+                    const dx = p.x - this.mouse.x;
+                    const dy = p.y - this.mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        const force = (150 - dist) / 150 * 0.015;
+                        p.vx += dx * force;
+                        p.vy += dy * force;
+                    }
+
+                    // Damping
+                    p.vx *= 0.99;
+                    p.vy *= 0.99;
+
+                    // Draw particle
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(238, 238, 240, ${p.opacity})`;
+                    this.ctx.fill();
+                }
+
+                // Draw connections
+                for (let i = 0; i < this.particles.length; i++) {
+                    for (let j = i + 1; j < this.particles.length; j++) {
+                        const a = this.particles[i];
+                        const b = this.particles[j];
+                        const dx = a.x - b.x;
+                        const dy = a.y - b.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < this.connectionDistance) {
+                            const alpha = (1 - dist / this.connectionDistance) * 0.08;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(a.x, a.y);
+                            this.ctx.lineTo(b.x, b.y);
+                            this.ctx.strokeStyle = `rgba(78, 205, 196, ${alpha})`;
+                            this.ctx.lineWidth = 0.5;
+                            this.ctx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           Handles navigation, animations, UI chrome
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.totalSlides = this.slides.length;
+                this.currentSlide = 0;
+                this.isTransitioning = false;
+                this.transitionDuration = 600;
+
+                this.progressFill = document.getElementById('progressFill');
+                this.navDots = document.getElementById('navDots');
+                this.counterCurrent = document.getElementById('counterCurrent');
+                this.counterTotal = document.getElementById('counterTotal');
+                this.keyboardHint = document.getElementById('keyboardHint');
+
+                this.counterTotal.textContent = String(this.totalSlides).padStart(2, '0');
+
+                this.buildNavDots();
+                this.updateUI();
+                this.bindEvents();
+
+                // Hide keyboard hint after first interaction
+                this.hintHidden = false;
+            }
+
+            buildNavDots() {
+                for (let i = 0; i < this.totalSlides; i++) {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot';
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}: ${this.slides[i].dataset.title || ''}`);
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    this.navDots.appendChild(dot);
+                }
+            }
+
+            bindEvents() {
+                // Keyboard
+                window.addEventListener('keydown', (e) => {
+                    this.hideHint();
+                    switch (e.key) {
+                        case 'ArrowRight':
+                        case 'ArrowDown':
+                        case ' ':
+                        case 'PageDown':
+                            e.preventDefault();
+                            this.next();
+                            break;
+                        case 'ArrowLeft':
+                        case 'ArrowUp':
+                        case 'PageUp':
+                            e.preventDefault();
+                            this.prev();
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            this.goToSlide(0);
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            this.goToSlide(this.totalSlides - 1);
+                            break;
+                    }
+                });
+
+                // Mouse wheel
+                window.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    this.hideHint();
+                    if (e.deltaY > 20) this.next();
+                    else if (e.deltaY < -20) this.prev();
+                }, { passive: false });
+
+                // Touch swipe
+                let touchStartY = 0;
+                let touchStartX = 0;
+                window.addEventListener('touchstart', (e) => {
+                    touchStartY = e.touches[0].clientY;
+                    touchStartX = e.touches[0].clientX;
+                }, { passive: true });
+
+                window.addEventListener('touchend', (e) => {
+                    const dy = touchStartY - e.changedTouches[0].clientY;
+                    const dx = touchStartX - e.changedTouches[0].clientX;
+                    // Use the larger axis
+                    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 50) {
+                        this.hideHint();
+                        if (dy > 0) this.next();
+                        else this.prev();
+                    } else if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                        this.hideHint();
+                        if (dx > 0) this.next();
+                        else this.prev();
+                    }
+                }, { passive: true });
+            }
+
+            hideHint() {
+                if (!this.hintHidden) {
+                    this.keyboardHint.classList.add('hidden');
+                    this.hintHidden = true;
+                }
+            }
+
+            next() { this.goToSlide(this.currentSlide + 1); }
+            prev() { this.goToSlide(this.currentSlide - 1); }
+
+            goToSlide(index) {
+                if (this.isTransitioning) return;
+                if (index < 0 || index >= this.totalSlides) return;
+                if (index === this.currentSlide) return;
+
+                this.isTransitioning = true;
+
+                // Deactivate old slide
+                this.slides[this.currentSlide].classList.remove('active');
+
+                // Activate new slide
+                this.currentSlide = index;
+                this.slides[this.currentSlide].classList.add('active');
+
+                this.updateUI();
+                this.triggerSlideEffects(index);
+
+                setTimeout(() => {
+                    this.isTransitioning = false;
+                }, this.transitionDuration);
+            }
+
+            updateUI() {
+                // Progress bar
+                const progress = this.totalSlides > 1
+                    ? (this.currentSlide / (this.totalSlides - 1)) * 100
+                    : 100;
+                this.progressFill.style.width = `${progress}%`;
+
+                // Nav dots
+                const dots = this.navDots.querySelectorAll('.nav-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+
+                // Counter
+                this.counterCurrent.textContent = String(this.currentSlide + 1).padStart(2, '0');
+            }
+
+            triggerSlideEffects(index) {
+                const slide = this.slides[index];
+
+                // Counter animations
+                slide.querySelectorAll('[data-count]').forEach(el => {
+                    if (!el.dataset.counted) {
+                        animateCounter(el, parseInt(el.dataset.count, 10));
+                        el.dataset.counted = 'true';
+                    }
+                });
+
+                // Manifesto underlines
+                slide.querySelectorAll('.manifesto-highlight::after');
+            }
+        }
+
+        /* ===========================================
+           COUNTER ANIMATION
+           Smoothly counts from 0 to target number
+           =========================================== */
+        function animateCounter(el, target) {
+            const duration = 2000;
+            const start = performance.now();
+            const suffix = (el.dataset.suffix || '') + '+';
+
+            function tick(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                // Ease out cubic
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(eased * target);
+                el.textContent = current + suffix;
+                if (progress < 1) requestAnimationFrame(tick);
+                else el.textContent = target + suffix;
+            }
+
+            // Delay to let the reveal animation start first
+            setTimeout(() => requestAnimationFrame(tick), 400);
+        }
+
+        /* ===========================================
+           3D TILT EFFECT
+           Cards subtly tilt toward the mouse cursor
+           =========================================== */
+        function initTiltEffects() {
+            document.querySelectorAll('[data-tilt]').forEach(el => {
+                el.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                el.style.transformStyle = 'preserve-3d';
+
+                el.addEventListener('mousemove', (e) => {
+                    const rect = el.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    el.style.transform = `
+                        perspective(600px)
+                        rotateY(${x * 8}deg)
+                        rotateX(${-y * 8}deg)
+                        translateY(-4px)
+                        scale(1.02)
+                    `;
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    el.style.transform = 'perspective(600px) rotateY(0) rotateX(0) translateY(0) scale(1)';
+                });
+            });
+        }
+
+        /* ===========================================
+           PIXEL TRAIL — Inspired by fancy "Pixel Trail"
+           Small squares appear and fade where the cursor moves.
+           Creates a trail of "code pixels" behind the mouse.
+           =========================================== */
+        class PixelTrail {
+            constructor() {
+                // Canvas for the fading trail squares
+                this.canvas = document.createElement('canvas');
+                this.canvas.className = 'pixel-trail-canvas';
+                document.body.appendChild(this.canvas);
+                this.ctx = this.canvas.getContext('2d');
+
+                // Visible 6×6 square that IS the cursor
+                this.cursorEl = document.createElement('div');
+                this.cursorEl.id = 'pixel-cursor';
+                document.body.appendChild(this.cursorEl);
+
+                this.trail = [];          // {x, y, t} — position + timestamp
+                this.lastX = -9999;
+                this.lastY = -9999;
+
+                this._resize();
+                window.addEventListener('resize', () => this._resize());
+                window.addEventListener('mousemove', (e) => this._onMove(e));
+                this._animate();
+            }
+
+            _resize() {
+                this.canvas.width  = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            _onMove(e) {
+                // Move the square cursor instantly
+                this.cursorEl.style.left = e.clientX + 'px';
+                this.cursorEl.style.top  = e.clientY + 'px';
+
+                // Stamp a trail point every ~4px of travel
+                const dx = e.clientX - this.lastX;
+                const dy = e.clientY - this.lastY;
+                if (dx * dx + dy * dy > 16) {
+                    this.trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+                    this.lastX = e.clientX;
+                    this.lastY = e.clientY;
+                }
+            }
+
+            _animate() {
+                requestAnimationFrame(() => this._animate());
+                if (document.hidden) return;
+
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const LIFE = 420; // ms until fully faded
+                const now  = performance.now();
+
+                for (let i = this.trail.length - 1; i >= 0; i--) {
+                    const age = now - this.trail[i].t;
+                    if (age > LIFE) { this.trail.splice(i, 1); continue; }
+
+                    const p     = age / LIFE;                    // 0 → 1
+                    const alpha = (1 - p) * 0.82;
+                    const sz    = Math.max(0.5, 5 * (1 - p * 0.65));
+
+                    this.ctx.fillStyle = `rgba(212, 255, 44, ${alpha})`;
+                    this.ctx.fillRect(
+                        this.trail[i].x - sz / 2,
+                        this.trail[i].y - sz / 2,
+                        sz, sz
+                    );
+                }
+            }
+        }
+
+        /* ===========================================
+           CURSOR PROXIMITY — Inspired by fancy "Text Cursor Proximity"
+           Manifesto items respond to cursor distance.
+           =========================================== */
+        class CursorProximity {
+            constructor() {
+                this.items = document.querySelectorAll('[data-proximity]');
+                this.mouse = { x: -1000, y: -1000 };
+                this.maxDistance = 260;
+                this.isActive = false;
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                    if (this.isActive) this._update();
+                });
+            }
+            activate() { this.isActive = true; }
+            deactivate() {
+                this.isActive = false;
+                this.items.forEach(el => {
+                    el.style.opacity = '';
+                    el.style.transform = '';
+                    el.style.letterSpacing = '';
+                });
+            }
+            _update() {
+                this.items.forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    const dist = Math.hypot(this.mouse.x - cx, this.mouse.y - cy);
+                    const prox = Math.max(0, 1 - dist / this.maxDistance);
+                    const e2 = prox * prox;
+                    el.style.opacity = 0.4 + e2 * 0.6;
+                    el.style.transform = `scale(${1 + e2 * 0.04})`;
+                    el.style.letterSpacing = `${e2 * 1.5}px`;
+                });
+            }
+        }
+
+        /* ===========================================
+           EXPANDABLE CARDS MODAL
+           Clicking a card with data-expandable opens
+           a full-size modal with readable content.
+           =========================================== */
+        class ExpandableCards {
+            constructor() {
+                this.cards        = [];
+                this.currentIndex = -1;
+                this.overlay      = this._createOverlay();
+                this._initCards();
+                this._bindGlobal();
+            }
+
+            _createOverlay() {
+                const div = document.createElement('div');
+                div.className = 'card-overlay';
+                div.innerHTML = `
+                    <div class="expanded-card">
+                        <button class="expanded-card-close" aria-label="Close">✕</button>
+                        <div class="expanded-card-num" id="ecNum"></div>
+                        <div class="expanded-card-title" id="ecTitle"></div>
+                        <div class="expanded-card-desc" id="ecDesc"></div>
+                        <div class="expanded-card-footer">
+                            <button class="expanded-card-nav" id="ecPrev" aria-label="Previous card">←</button>
+                            <span class="expanded-card-counter" id="ecCounter"></span>
+                            <button class="expanded-card-nav" id="ecNext" aria-label="Next card">→</button>
+                        </div>
+                    </div>`;
+                document.body.appendChild(div);
+                return div;
+            }
+
+            _initCards() {
+                this.cards = Array.from(document.querySelectorAll('[data-expandable]'));
+                this.cards.forEach((card, idx) => {
+                    card.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this._openIndex(idx);
+                    });
+                });
+            }
+
+            _openIndex(idx) {
+                if (idx < 0 || idx >= this.cards.length) return;
+                this.currentIndex = idx;
+                const card  = this.cards[idx];
+                const num   = card.dataset.num   || card.querySelector('.card-number')?.textContent || '';
+                const title = card.dataset.cardTitle || card.querySelector('.card-title')?.textContent || '';
+                const desc  = card.dataset.fullDesc  || '';
+                document.getElementById('ecNum').textContent     = num;
+                document.getElementById('ecTitle').textContent   = title;
+                document.getElementById('ecDesc').textContent    = desc;
+                document.getElementById('ecCounter').textContent = `${idx + 1} / ${this.cards.length}`;
+                document.getElementById('ecPrev').disabled = idx === 0;
+                document.getElementById('ecNext').disabled = idx === this.cards.length - 1;
+                this.overlay.classList.add('open');
+            }
+
+            _close() {
+                this.overlay.classList.remove('open');
+                this.currentIndex = -1;
+            }
+
+            _bindGlobal() {
+                this.overlay.addEventListener('click', (e) => {
+                    if (e.target === this.overlay || e.target.closest('.expanded-card-close')) {
+                        this._close();
+                    }
+                });
+                document.getElementById('ecPrev').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this._openIndex(this.currentIndex - 1);
+                });
+                document.getElementById('ecNext').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this._openIndex(this.currentIndex + 1);
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (!this.overlay.classList.contains('open')) return;
+                    if (e.key === 'Escape')     { this._close(); }
+                    if (e.key === 'ArrowLeft')  { e.preventDefault(); this._openIndex(this.currentIndex - 1); }
+                    if (e.key === 'ArrowRight') { e.preventDefault(); this._openIndex(this.currentIndex + 1); }
+                });
+            }
+        }
+
+        /* ===========================================
+           IMAGE COMPARISON — Mouse-driven before/after reveal
+           Updates --split CSS variable from mousemove X position.
+           clip-path on the "after" image is driven by that variable.
+           =========================================== */
+        function initImageCompare() {
+            const compare = document.getElementById('imgCompare');
+            if (!compare) return;
+
+            const hint    = document.getElementById('imgCompareHint');
+            const line    = document.getElementById('imgCompareLine');
+            let hintDismissed = false;
+            let returnTimer   = null;
+
+            compare.addEventListener('mousemove', (e) => {
+                const rect = compare.getBoundingClientRect();
+                const x    = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+                const pct  = (x / rect.width) * 100;
+
+                // Update the CSS variable driving both clip-path and line position
+                compare.style.setProperty('--split', pct.toFixed(2) + '%');
+
+                // Remove the smooth-return class while interacting
+                compare.classList.remove('returning');
+                if (returnTimer) { clearTimeout(returnTimer); returnTimer = null; }
+
+                // Fade out the hint on first move
+                if (!hintDismissed && pct > 5) {
+                    hintDismissed = true;
+                    hint?.classList.add('hidden');
+                }
+            });
+
+            // No mouseleave reset — split stays at last position so there's no jump
+            // when the cursor exits from the right edge.
+        }
+
+        /* ===========================================
+           SLIDE GOTO — Click handler for data-goto elements
+           Cards/buttons with data-goto="slide-id" navigate
+           to that slide by its element ID.
+           =========================================== */
+        function initGotoLinks() {
+            document.querySelectorAll('[data-goto]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const targetId = el.dataset.goto;
+                    const target = document.getElementById(targetId);
+                    if (!target) return;
+
+                    const slides = [...document.querySelectorAll('.slide')];
+                    const index = slides.indexOf(target);
+                    if (index !== -1 && window.presentation) {
+                        window.presentation.goToSlide(index);
+                    }
+                });
+            });
+        }
+
+        /* ===========================================
+           CYCLING TEXT — "Code can..." slide
+           Each click cycles through the list of predicates
+           with a smooth exit/enter animation.
+           =========================================== */
+        class CyclingText {
+            constructor() {
+                this.predicates = [
+                    'make slides',
+                    'design graphics',
+                    'create and edit videos',
+                    'do anything that happens on a computer'
+                ];
+                this.index = 0;
+                this.el = document.getElementById('cyclingPredicate');
+                this.progressEl = document.getElementById('cyclingProgress');
+                this.hintEl = document.getElementById('cyclingHint');
+                this.isAnimating = false;
+                this.slideEl = document.getElementById('code-can-slide');
+
+                if (this.slideEl) {
+                    this.slideEl.addEventListener('click', () => this.advance());
+                }
+
+                // Update progress display
+                this._updateProgress();
+            }
+
+            reset() {
+                this.index = 0;
+                if (this.el) this.el.textContent = this.predicates[0];
+                this._updateProgress();
+                if (this.hintEl) {
+                    this.hintEl.textContent = 'click anywhere to continue';
+                    this.hintEl.classList.remove('done');
+                    this.hintEl.style.animation = '';
+                }
+            }
+
+            advance() {
+                if (this.isAnimating) return;
+                const isLast = this.index === this.predicates.length - 1;
+
+                if (isLast) {
+                    // After the last one, indicate to press arrow to go to next slide
+                    if (this.hintEl) {
+                        this.hintEl.textContent = '→ press arrow to continue';
+                        this.hintEl.classList.add('done');
+                    }
+                    return;
+                }
+
+                this.isAnimating = true;
+                const next = this.index + 1;
+
+                // Exit current
+                if (this.el) {
+                    this.el.classList.add('exiting');
+                    setTimeout(() => {
+                        this.index = next;
+                        this.el.textContent = this.predicates[this.index];
+                        this.el.classList.remove('exiting');
+                        this.el.classList.add('entering');
+                        // Force reflow then animate in
+                        void this.el.offsetWidth;
+                        this.el.classList.remove('entering');
+                        this.isAnimating = false;
+                        this._updateProgress();
+                    }, 250);
+                }
+            }
+
+            _updateProgress() {
+                if (this.progressEl) {
+                    this.progressEl.textContent = `${this.index + 1} / ${this.predicates.length}`;
+                }
+            }
+        }
+
+        /* ===========================================
+           INITIALIZE EVERYTHING
+           =========================================== */
+        const proximityEffect = new CursorProximity();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Background constellation
+            const canvas = document.getElementById('constellation');
+            new Constellation(canvas);
+
+            // Main slide controller
+            window.presentation = new SlidePresentation();
+
+            // Tilt on cards
+            initTiltEffects();
+
+            // Pixel trail cursor
+            new PixelTrail();
+
+            // Expandable lesson cards
+            new ExpandableCards();
+
+            // Before/after image comparison
+            initImageCompare();
+
+            // data-goto card navigation (Content Remix overview + detail back buttons)
+            initGotoLinks();
+
+
+            // Cycling text for "Code Can" slide
+            const cycler = new CyclingText();
+
+            // Hook cycling text reset + proximity + video play/pause into slide transitions
+            const allSlides = [...document.querySelectorAll('.slide')];
+            const codeCanIndex     = allSlides.findIndex(s => s.id === 'code-can-slide');
+            const codeCanProxIndex = allSlides.findIndex(s => s.dataset.title === 'Everything is Code');
+            const vocabSlideIndex  = allSlides.findIndex(s => s.id === 'slide-vocab');
+            const vocabVideo       = document.getElementById('vocabVideo');
+
+            const origTrigger = window.presentation.triggerSlideEffects.bind(window.presentation);
+            window.presentation.triggerSlideEffects = function(index) {
+                origTrigger(index);
+
+                // Reset + play cycling text when navigating to that slide
+                if (index === codeCanIndex) cycler.reset();
+
+                // Cursor proximity effect on the manifesto slide
+                if (index === codeCanProxIndex) proximityEffect.activate();
+                else proximityEffect.deactivate();
+
+                // Play vocab video when its slide is active; pause otherwise
+                if (vocabVideo) {
+                    if (index === vocabSlideIndex) {
+                        vocabVideo.currentTime = 0;
+                        vocabVideo.play().catch(() => {
+                            // Autoplay blocked — add a tap-to-play overlay as fallback
+                            vocabVideo.closest('.phone-frame').addEventListener('click', () => {
+                                vocabVideo.play().catch(() => {});
+                            }, { once: true });
+                        });
+                    } else {
+                        vocabVideo.pause();
+                        vocabVideo.currentTime = 0;
+                    }
+                }
+            };
+
+            // Trigger effects for initial slide
+            window.presentation.triggerSlideEffects(0);
+        });
+
+    })();
+    </script>
+
+    <!-- Twitter/X embed widget — renders the tweet with real engagement numbers -->
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</body>
+</html>

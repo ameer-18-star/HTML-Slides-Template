@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cursor Style Playground</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #111110;
+  --surface:  #1c1b18;
+  --surface2: #252420;
+  --text:     #f0ece0;
+  --dim:      #857e72;
+  --accent:   #d4ff2c;
+  --border:   rgba(240,236,224,0.09);
+  --mono:     'JetBrains Mono', 'Courier New', monospace;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 100vh;
+}
+
+/* ── LEFT PANEL ── */
+#controls {
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.panel-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.style-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  padding: 12px 14px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  width: 100%;
+}
+.style-btn:hover {
+  border-color: rgba(212,255,44,0.25);
+  color: var(--text);
+}
+.style-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(212,255,44,0.05);
+}
+.btn-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 3px;
+}
+.btn-desc {
+  font-size: 10.5px;
+  line-height: 1.45;
+  opacity: 0.65;
+  font-family: var(--mono);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 10px 0;
+}
+
+.ctrl-wrap { display: flex; flex-direction: column; gap: 6px; }
+
+.ctrl-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.ctrl-val { color: var(--accent); font-size: 10px; }
+
+input[type=range] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 3px;
+}
+
+.ctrl-disabled { opacity: 0.28; pointer-events: none; }
+
+/* ── RIGHT PANEL ── */
+#right {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── PREVIEW AREA ── */
+#preview {
+  flex: 1;
+  position: relative;
+  cursor: none;
+  background: #0e0d0b;
+  overflow: hidden;
+}
+
+/* Dot-grid texture */
+#preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(240,236,224,0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Decorative slide fragments to test cursor against */
+.preview-frag {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+.frag-title {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 700;
+  font-family: system-ui;
+  color: rgba(240,236,224,0.07);
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+.frag-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(240,236,224,0.12);
+}
+.frag-card {
+  width: 100px;
+  height: 64px;
+  border: 1px solid rgba(240,236,224,0.07);
+  border-radius: 4px;
+}
+.frag-accent {
+  width: 48px;
+  height: 3px;
+  background: rgba(212,255,44,0.15);
+}
+
+/* Instruction */
+#instruction {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s ease;
+}
+#instruction span {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(240,236,224,0.18);
+}
+
+/* Canvas for pixel trail */
+#trail-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── CURSOR ELEMENTS (all absolute, inside #preview) ── */
+.cur {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  display: none;
+}
+.cur.on { display: block; }
+
+/* 1. Crosshair+ */
+#cur-crosshair { transform: translate(-50%, -50%); }
+.ch-h {
+  position: absolute;
+  width: 26px; height: 1px;
+  background: var(--accent);
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+}
+.ch-v {
+  position: absolute;
+  width: 1px; height: 26px;
+  background: var(--accent);
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+}
+/* Gap in the middle of the lines */
+.ch-gap-h {
+  position: absolute;
+  width: 7px; height: 1px;
+  background: #0e0d0b;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.ch-gap-v {
+  position: absolute;
+  width: 1px; height: 7px;
+  background: #0e0d0b;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.ch-dot {
+  position: absolute;
+  width: 3px; height: 3px;
+  background: var(--accent);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+/* 2. Ink Dot */
+#ink-dot {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+}
+#ink-ring {
+  position: absolute;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  transform: translate(-50%, -50%);
+  opacity: 0.55;
+}
+
+/* 3. Pixel cursor (trail is on canvas) */
+#pixel-dot {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+}
+
+/* 4. Text cursor */
+#cur-text {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  white-space: nowrap;
+  transform: translate(12px, -50%);
+  letter-spacing: 0.04em;
+}
+#text-blink { animation: blink 1s step-end infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ── BOTTOM BAR ── */
+#bottom {
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  min-height: 72px;
+  gap: 0;
+}
+
+#style-info {
+  padding: 14px 18px;
+  border-right: 1px solid var(--border);
+}
+#style-name {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 3px;
+}
+#style-tagline {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--dim);
+  line-height: 1.4;
+}
+
+#prompt-wrap {
+  padding: 14px 18px;
+  overflow: hidden;
+}
+#prompt-text {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--dim);
+  line-height: 1.55;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+#copy-btn {
+  margin: 0 16px;
+  background: transparent;
+  border: 1px solid rgba(212,255,44,0.3);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+#copy-btn:hover { background: rgba(212,255,44,0.07); border-color: var(--accent); }
+#copy-btn.ok { color: var(--text); border-color: rgba(240,236,224,0.2); }
+</style>
+</head>
+<body>
+
+<!-- ── LEFT: controls ── -->
+<div id="controls">
+  <span class="panel-label">Cursor Style</span>
+
+  <button class="style-btn active" data-style="crosshair">
+    <span class="btn-name">① Crosshair+</span>
+    <span class="btn-desc">Targeting reticle with gap+dot. Zero lag.</span>
+  </button>
+
+  <button class="style-btn" data-style="inkdot">
+    <span class="btn-name">② Ink Dot</span>
+    <span class="btn-desc">Dot + ring that chase the mouse with lag.</span>
+  </button>
+
+  <button class="style-btn" data-style="pixel">
+    <span class="btn-name">③ Pixel Trail</span>
+    <span class="btn-desc">Square that leaves fading chartreuse crumbs.</span>
+  </button>
+
+  <button class="style-btn" data-style="text">
+    <span class="btn-name">④ Text Cursor</span>
+    <span class="btn-desc">Live code label that follows your pointer.</span>
+  </button>
+
+  <div class="divider"></div>
+
+  <div class="ctrl-wrap" id="lag-ctrl">
+    <span class="ctrl-label">
+      Lag / Smoothing
+      <span class="ctrl-val" id="lag-val">medium</span>
+    </span>
+    <input type="range" id="lag-slider" min="0.05" max="0.42" step="0.01" value="0.15">
+  </div>
+</div>
+
+<!-- ── RIGHT: preview + bottom ── -->
+<div id="right">
+  <div id="preview">
+
+    <!-- Ghost slide fragments for context -->
+    <div class="preview-frag frag-title">Code as Storytelling</div>
+    <div class="preview-frag frag-label" style="top:18px;left:24px;">SLIDE 01</div>
+    <div class="preview-frag frag-accent" style="top:34px;left:24px;"></div>
+    <div class="preview-frag frag-card" style="bottom:60px;left:40px;"></div>
+    <div class="preview-frag frag-card" style="bottom:60px;left:160px;"></div>
+    <div class="preview-frag frag-card" style="bottom:60px;right:40px;"></div>
+
+    <div id="instruction"><span>↑ move cursor here</span></div>
+
+    <!-- Canvas for pixel trail -->
+    <canvas id="trail-canvas"></canvas>
+
+    <!-- Cursor elements -->
+    <div class="cur on" id="cur-crosshair">
+      <div class="ch-h"></div>
+      <div class="ch-gap-h"></div>
+      <div class="ch-v"></div>
+      <div class="ch-gap-v"></div>
+      <div class="ch-dot"></div>
+    </div>
+
+    <div class="cur" id="cur-inkdot">
+      <div id="ink-dot"></div>
+      <div id="ink-ring"></div>
+    </div>
+
+    <div class="cur" id="cur-pixel">
+      <div id="pixel-dot"></div>
+    </div>
+
+    <div class="cur" id="cur-text">
+      <span id="text-label">cursor: pointer</span><span id="text-blink">_</span>
+    </div>
+  </div>
+
+  <div id="bottom">
+    <div id="style-info">
+      <span id="style-name">Crosshair+</span>
+      <span id="style-tagline">Minimal reticle, zero lag</span>
+    </div>
+    <div id="prompt-wrap">
+      <div id="prompt-text"></div>
+    </div>
+    <button id="copy-btn">Copy Prompt</button>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────
+const state = { style: 'crosshair', lag: 0.15 };
+
+const META = {
+  crosshair: {
+    name: 'Crosshair+',
+    tagline: 'Minimal reticle, zero lag',
+    prompt: 'Add a Crosshair+ custom cursor to the presentation slides. ' +
+      'Set cursor:none on the slides wrapper. Create an absolutely-positioned ' +
+      'div that tracks the mouse instantly (zero smoothing). Render two 1px ' +
+      'chartreuse (#d4ff2c) lines — 26px horizontal, 26px vertical — crossing ' +
+      'at the cursor point, with a 7px gap in the center of each line and a ' +
+      '3×3px filled chartreuse square at the intersection.'
+  },
+  inkdot: {
+    name: 'Ink Dot',
+    tagline: 'Filled dot + hollow ring with chase lag',
+    prompt: '' // built dynamically
+  },
+  pixel: {
+    name: 'Pixel Trail',
+    tagline: '6×6 square leaves fading chartreuse crumbs',
+    prompt: 'Add a Pixel Trail custom cursor. Set cursor:none on the slides wrapper. ' +
+      'The cursor itself is a 6×6px chartreuse (#d4ff2c) square that tracks the mouse ' +
+      'instantly. On a canvas overlay, render a trail of fading squares: every ~4px of ' +
+      'mouse movement, stamp a new square at the current position. Each square shrinks ' +
+      'from 5px to 1px and fades from 85% to 0% opacity over 400ms. Clear and redraw ' +
+      'the canvas each frame via requestAnimationFrame.'
+  },
+  text: {
+    name: 'Text Cursor',
+    tagline: 'Live code label following your pointer',
+    prompt: '' // built dynamically
+  }
+};
+
+// ─── DOM ─────────────────────────────────────────────────────────────
+const preview   = document.getElementById('preview');
+const canvas    = document.getElementById('trail-canvas');
+const ctx       = canvas.getContext('2d');
+const instrEl   = document.getElementById('instruction');
+const lagSlider = document.getElementById('lag-slider');
+const lagVal    = document.getElementById('lag-val');
+const promptEl  = document.getElementById('prompt-text');
+const copyBtn   = document.getElementById('copy-btn');
+const lagCtrl   = document.getElementById('lag-ctrl');
+
+const cursors = {
+  crosshair: document.getElementById('cur-crosshair'),
+  inkdot:    document.getElementById('cur-inkdot'),
+  pixel:     document.getElementById('cur-pixel'),
+  text:      document.getElementById('cur-text'),
+};
+
+const inkDot  = document.getElementById('ink-dot');
+const inkRing = document.getElementById('ink-ring');
+const pixDot  = document.getElementById('pixel-dot');
+const textCur = document.getElementById('cur-text');
+
+// ─── MOUSE ───────────────────────────────────────────────────────────
+const mouse = { x: -200, y: -200 };
+
+preview.addEventListener('mousemove', e => {
+  const r = preview.getBoundingClientRect();
+  mouse.x = e.clientX - r.left;
+  mouse.y = e.clientY - r.top;
+  instrEl.style.opacity = '0';
+});
+preview.addEventListener('mouseleave', () => { mouse.x = -200; mouse.y = -200; });
+
+// ─── LERP POSITIONS ──────────────────────────────────────────────────
+let dotX = -200, dotY = -200;
+let ringX = -200, ringY = -200;
+let txtX = -200, txtY = -200;
+const trail = [];
+let lastTX = -9999, lastTY = -9999;
+
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// ─── RAF LOOP ────────────────────────────────────────────────────────
+function tick() {
+  requestAnimationFrame(tick);
+  const f = state.lag;
+  const s = state.style;
+
+  // 1. Crosshair — instant
+  if (s === 'crosshair') {
+    cursors.crosshair.style.left = mouse.x + 'px';
+    cursors.crosshair.style.top  = mouse.y + 'px';
+  }
+
+  // 2. Ink Dot — two different lerp speeds
+  if (s === 'inkdot') {
+    const df = Math.min(f * 1.8, 0.5);
+    const rf = Math.max(f * 0.6, 0.04);
+    dotX  = lerp(dotX,  mouse.x, df);
+    dotY  = lerp(dotY,  mouse.y, df);
+    ringX = lerp(ringX, mouse.x, rf);
+    ringY = lerp(ringY, mouse.y, rf);
+    inkDot.style.left  = dotX + 'px';
+    inkDot.style.top   = dotY + 'px';
+    inkRing.style.left = ringX + 'px';
+    inkRing.style.top  = ringY + 'px';
+  }
+
+  // 3. Pixel Trail
+  if (s === 'pixel') {
+    pixDot.style.left = mouse.x + 'px';
+    pixDot.style.top  = mouse.y + 'px';
+    const now = performance.now();
+    const ddx = mouse.x - lastTX, ddy = mouse.y - lastTY;
+    if (ddx*ddx + ddy*ddy > 16) {
+      trail.push({ x: mouse.x, y: mouse.y, t: now });
+      lastTX = mouse.x; lastTY = mouse.y;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const LIFE = 400;
+    for (let i = trail.length - 1; i >= 0; i--) {
+      const age = now - trail[i].t;
+      if (age > LIFE) { trail.splice(i, 1); continue; }
+      const p = age / LIFE;
+      const alpha = (1 - p) * 0.82;
+      const sz = Math.max(0.5, 5 * (1 - p * 0.65));
+      ctx.fillStyle = `rgba(212,255,44,${alpha})`;
+      ctx.fillRect(trail[i].x - sz/2, trail[i].y - sz/2, sz, sz);
+    }
+  } else {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // 4. Text cursor — gentle lerp
+  if (s === 'text') {
+    const tf = Math.min(f * 1.4, 0.4);
+    txtX = lerp(txtX, mouse.x, tf);
+    txtY = lerp(txtY, mouse.y, tf);
+    textCur.style.left = txtX + 'px';
+    textCur.style.top  = txtY + 'px';
+  }
+}
+tick();
+
+// ─── CANVAS RESIZE ───────────────────────────────────────────────────
+function resizeCanvas() {
+  const r = preview.getBoundingClientRect();
+  canvas.width  = r.width;
+  canvas.height = r.height;
+}
+resizeCanvas();
+new ResizeObserver(resizeCanvas).observe(preview);
+
+// ─── STYLE SWITCH ────────────────────────────────────────────────────
+function lagLabel(v) {
+  if (v < 0.10) return 'glacial';
+  if (v < 0.16) return 'medium';
+  if (v < 0.26) return 'snappy';
+  return 'tight';
+}
+
+function buildPrompt() {
+  const s = state.style;
+  if (s === 'crosshair' || s === 'pixel') return META[s].prompt;
+
+  const ll = lagLabel(state.lag);
+  const lf = state.lag.toFixed(2);
+
+  if (s === 'inkdot') {
+    return `Add an Ink Dot custom cursor to the presentation slides. ` +
+      `Set cursor:none on the slides wrapper. Create two absolutely-positioned elements ` +
+      `that track the mouse via lerp in a requestAnimationFrame loop: ` +
+      `(1) a filled 8px chartreuse (#d4ff2c) circle with lerp factor ~${(state.lag*1.8).toFixed(2)} — ` +
+      `the "fast" dot; ` +
+      `(2) a 28px hollow ring (1.5px chartreuse border, 55% opacity) with lerp factor ~${(state.lag*0.6).toFixed(2)} — ` +
+      `the "slow" trailing ring. Overall lag feel: ${ll} (base factor ${lf}).`;
+  }
+
+  if (s === 'text') {
+    return `Add a Text Cursor to the presentation slides. ` +
+      `Set cursor:none on the slides wrapper. Create an absolutely-positioned span in ` +
+      `11px JetBrains Mono showing the text "cursor: pointer" in chartreuse (#d4ff2c), ` +
+      `followed by a blinking underscore "_" (CSS step-end animation, 1s). ` +
+      `Offset 12px right and 50% up from the mouse point. ` +
+      `Smooth the position with lerp factor ~${(state.lag*1.4).toFixed(2)} — lag feel: ${ll}.`;
+  }
+  return META[s].prompt;
+}
+
+function setStyle(s) {
+  state.style = s;
+
+  // Toggle cursor visibility
+  Object.entries(cursors).forEach(([k, el]) => {
+    el.classList.toggle('on', k === s);
+  });
+
+  // Reset lerped positions to current mouse
+  dotX = ringX = txtX = mouse.x;
+  dotY = ringY = txtY = mouse.y;
+  trail.length = 0; lastTX = lastTY = -9999;
+
+  // Update buttons
+  document.querySelectorAll('.style-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.style === s);
+  });
+
+  // Update info
+  document.getElementById('style-name').textContent    = META[s].name;
+  document.getElementById('style-tagline').textContent = META[s].tagline;
+
+  // Lag slider relevance
+  lagCtrl.classList.toggle('ctrl-disabled', s === 'crosshair' || s === 'pixel');
+
+  updatePrompt();
+}
+
+function updatePrompt() {
+  promptEl.textContent = buildPrompt();
+}
+
+document.querySelectorAll('.style-btn').forEach(b => {
+  b.addEventListener('click', () => setStyle(b.dataset.style));
+});
+
+// ─── LAG SLIDER ──────────────────────────────────────────────────────
+lagSlider.addEventListener('input', () => {
+  state.lag = parseFloat(lagSlider.value);
+  lagVal.textContent = lagLabel(state.lag);
+  updatePrompt();
+});
+
+// ─── COPY ────────────────────────────────────────────────────────────
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(promptEl.textContent).then(() => {
+    copyBtn.textContent = 'Copied!';
+    copyBtn.classList.add('ok');
+    setTimeout(() => { copyBtn.textContent = 'Copy Prompt'; copyBtn.classList.remove('ok'); }, 1500);
+  });
+});
+
+// ─── INIT ────────────────────────────────────────────────────────────
+setStyle('crosshair');
+</script>
+</body>
+</html>

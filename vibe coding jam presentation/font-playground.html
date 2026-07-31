@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Font Pairing Playground</title>
+
+<!-- ── Google Fonts batch load ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Source+Sans+3:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Libre+Baskerville:ital,wght@0,700;1,400&family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- ── Fontshare: Clash Display + Satoshi + Cabinet Grotesk + General Sans ── -->
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&f[]=cabinet-grotesk@600,700,800&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ui-bg:       #0e0d0b;
+  --ui-surface:  #1a1918;
+  --ui-border:   rgba(240,236,224,0.09);
+  --ui-text:     #f0ece0;
+  --ui-dim:      #857e72;
+  --ui-accent:   #d4ff2c;
+  --mono:        'JetBrains Mono', 'Courier New', monospace;
+
+  /* Slide colors — fixed (we're testing fonts only) */
+  --s-bg:        #111110;
+  --s-surface:   #1c1b18;
+  --s-text:      #f0ece0;
+  --s-dim:       #857e72;
+  --s-accent:    #d4ff2c;
+  --s-border:    rgba(240,236,224,0.09);
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  font-family: system-ui, -apple-system, sans-serif;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: 100vh;
+}
+
+/* ── LEFT PANEL ── */
+#panel {
+  border-right: 1px solid var(--ui-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#panel-head {
+  padding: 18px 16px 12px;
+  border-bottom: 1px solid var(--ui-border);
+  flex-shrink: 0;
+}
+.panel-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ui-dim);
+  display: block;
+}
+
+#font-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.font-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 12px 14px;
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s;
+  width: 100%;
+  overflow: hidden;
+}
+.font-btn:hover { border-color: rgba(240,236,224,0.22); }
+.font-btn.active { border-color: var(--ui-accent); background: rgba(212,255,44,0.04); }
+
+/* Sample "Aa" in the actual display font */
+.font-sample-display {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ui-text);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Sample sentence in body font */
+.font-sample-body {
+  font-size: 10px;
+  color: var(--ui-dim);
+  line-height: 1.4;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.font-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.font-name {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--ui-text);
+}
+.font-mood {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--ui-dim);
+  text-align: right;
+  line-height: 1.4;
+}
+.font-active-tag {
+  display: none;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ui-bg);
+  background: var(--ui-accent);
+  padding: 2px 6px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.font-btn.active .font-active-tag { display: block; }
+
+/* ── RIGHT PANEL ── */
+#right {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#slides-area {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.slide-wrap {
+  position: relative;
+  border-right: 1px solid var(--ui-border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.slide-wrap:last-child { border-right: none; }
+
+.slide-tag {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240,236,224,0.2);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.slide-frame {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 24px;
+  background: var(--s-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dot-grid texture on slides */
+.slide-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* ── SLIDE 1: TITLE ── */
+.s1-inner {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+}
+.s1-rule {
+  width: 36px;
+  height: 2px;
+  background: var(--s-accent);
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.s1-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--s-dim);
+  margin-bottom: 10px;
+}
+.s1-title {
+  font-size: clamp(20px, 3.2vw, 36px);
+  font-weight: 700;
+  line-height: 1.08;
+  color: var(--s-text);
+  margin-bottom: 4px;
+}
+.s1-title .hl { color: var(--s-accent); }
+.s1-byline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+.s1-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--s-accent);
+  flex-shrink: 0;
+}
+.s1-byline-text {
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--s-dim);
+}
+
+/* ── SLIDE 2: QUOTE + BODY ── */
+.s2-inner {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.s2-quote {
+  font-size: clamp(16px, 2.6vw, 28px);
+  line-height: 1.25;
+  color: var(--s-text);
+}
+.s2-quote .hl { color: var(--s-accent); }
+.s2-rule {
+  width: 36px;
+  height: 2px;
+  background: var(--s-accent);
+}
+.s2-body {
+  font-size: clamp(11px, 1.4vw, 14px);
+  line-height: 1.65;
+  color: var(--s-dim);
+}
+.s2-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.s2-tag {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid rgba(240,236,224,0.14);
+  border-radius: 2px;
+  color: var(--s-dim);
+}
+.s2-tag.accent { border-color: rgba(212,255,44,0.4); color: var(--s-accent); }
+
+/* ── BOTTOM ── */
+#bottom {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  border-top: 1px solid var(--ui-border);
+  min-height: 66px;
+}
+#prompt-wrap { padding: 12px 18px; overflow: hidden; }
+#prompt-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ui-dim);
+  line-height: 1.55;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+#copy-btn {
+  margin: 0 16px;
+  background: transparent;
+  border: 1px solid rgba(212,255,44,0.3);
+  color: var(--ui-accent);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+#copy-btn:hover { background: rgba(212,255,44,0.07); }
+#copy-btn.ok { color: var(--ui-text); border-color: rgba(240,236,224,0.2); }
+</style>
+</head>
+<body>
+
+<!-- ── LEFT ── -->
+<div id="panel">
+  <div id="panel-head">
+    <span class="panel-label">Font Pairing</span>
+  </div>
+  <div id="font-list"></div>
+</div>
+
+<!-- ── RIGHT ── -->
+<div id="right">
+  <div id="slides-area">
+
+    <!-- Slide 1: Title -->
+    <div class="slide-wrap">
+      <div class="slide-tag">Slide 01 — Title</div>
+      <div class="slide-frame">
+        <div class="s1-inner">
+          <div class="s1-rule"></div>
+          <div class="s1-eyebrow" id="s1-eyebrow">Vibe Code Jam · 2025</div>
+          <div class="s1-title" id="s1-title">
+            Code as a Medium<br>for <span class="hl">Storytelling</span>
+          </div>
+          <div class="s1-byline">
+            <div class="s1-dot"></div>
+            <span class="s1-byline-text" id="s1-byline">Zara &nbsp;·&nbsp; Vibe Code Jam</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Quote + body text -->
+    <div class="slide-wrap">
+      <div class="slide-tag">Slide 03 — Turning Point</div>
+      <div class="slide-frame">
+        <div class="s2-inner">
+          <div class="s2-quote" id="s2-quote">
+            "A newfound freedom to <span class="hl">express my ideas</span> through code"
+          </div>
+          <div class="s2-rule"></div>
+          <div class="s2-body" id="s2-body">
+            My projects aren't technically complex — but a lot of them have gone viral.
+            I've always been a storyteller. I just discovered a new medium.
+          </div>
+          <div class="s2-tags">
+            <span class="s2-tag accent" id="s2-tag1">Vibe Coder</span>
+            <span class="s2-tag" id="s2-tag2">AI Product Manager</span>
+            <span class="s2-tag" id="s2-tag3">Content Creator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="bottom">
+    <div id="prompt-wrap">
+      <div id="prompt-text"></div>
+    </div>
+    <button id="copy-btn">Copy Prompt</button>
+  </div>
+</div>
+
+<script>
+// ─── FONT DATA ─────────────────────────────────────────────────────────────
+// Each entry defines display + body fonts and how they're applied to slides.
+const FONTS = [
+  {
+    id: 'current',
+    name: 'Clash Display + Satoshi',
+    mood: 'Geometric\nConfident',
+    display: 'Clash Display',
+    body: 'Satoshi',
+    mono: 'JetBrains Mono',
+    displayStack: "'Clash Display', 'Inter', sans-serif",
+    bodyStack: "'Satoshi', 'DM Sans', sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 700, titleSpacing: '-0.03em', titleStyle: 'normal',
+    quoteWeight: 400, quoteStyle: 'normal', quoteSpacing: '-0.01em',
+    bodyWeight: 400, bodySpacing: '0',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+  {
+    id: 'literary',
+    name: 'Cormorant Garamond + DM Sans',
+    mood: 'Literary\nEditorial',
+    display: 'Cormorant Garamond',
+    body: 'DM Sans',
+    mono: 'JetBrains Mono',
+    displayStack: "'Cormorant Garamond', Georgia, serif",
+    bodyStack: "'DM Sans', system-ui, sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 700, titleSpacing: '-0.01em', titleStyle: 'normal',
+    quoteWeight: 400, quoteStyle: 'italic', quoteSpacing: '0',
+    bodyWeight: 400, bodySpacing: '0.01em',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+  {
+    id: 'space',
+    name: 'Space Grotesk + Inter',
+    mood: 'Modernist\nCrisp',
+    display: 'Space Grotesk',
+    body: 'Inter',
+    mono: 'JetBrains Mono',
+    displayStack: "'Space Grotesk', sans-serif",
+    bodyStack: "'Inter', sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 700, titleSpacing: '-0.04em', titleStyle: 'normal',
+    quoteWeight: 500, quoteStyle: 'normal', quoteSpacing: '-0.02em',
+    bodyWeight: 400, bodySpacing: '0',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+  {
+    id: 'syne',
+    name: 'Syne + Outfit',
+    mood: 'Bold\nExpressive',
+    display: 'Syne',
+    body: 'Outfit',
+    mono: 'JetBrains Mono',
+    displayStack: "'Syne', sans-serif",
+    bodyStack: "'Outfit', sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 800, titleSpacing: '-0.04em', titleStyle: 'normal',
+    quoteWeight: 600, quoteStyle: 'normal', quoteSpacing: '-0.02em',
+    bodyWeight: 400, bodySpacing: '0',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+  {
+    id: 'playfair',
+    name: 'Playfair Display + Source Sans',
+    mood: 'Magazine\nClassic',
+    display: 'Playfair Display',
+    body: 'Source Sans 3',
+    mono: 'JetBrains Mono',
+    displayStack: "'Playfair Display', Georgia, serif",
+    bodyStack: "'Source Sans 3', sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 900, titleSpacing: '-0.01em', titleStyle: 'normal',
+    quoteWeight: 400, quoteStyle: 'italic', quoteSpacing: '0',
+    bodyWeight: 400, bodySpacing: '0.01em',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+  {
+    id: 'dm',
+    name: 'DM Serif Display + DM Sans',
+    mood: 'Elegant\nMatched',
+    display: 'DM Serif Display',
+    body: 'DM Sans',
+    mono: 'JetBrains Mono',
+    displayStack: "'DM Serif Display', Georgia, serif",
+    bodyStack: "'DM Sans', sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 400, titleSpacing: '0', titleStyle: 'normal',
+    quoteWeight: 400, quoteStyle: 'italic', quoteSpacing: '0',
+    bodyWeight: 400, bodySpacing: '0.01em',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+  {
+    id: 'jakarta',
+    name: 'Plus Jakarta Sans + JetBrains Mono',
+    mood: 'Tech-forward\nClean',
+    display: 'Plus Jakarta Sans',
+    body: 'Plus Jakarta Sans',
+    mono: 'JetBrains Mono',
+    displayStack: "'Plus Jakarta Sans', sans-serif",
+    bodyStack: "'Plus Jakarta Sans', sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 800, titleSpacing: '-0.04em', titleStyle: 'normal',
+    quoteWeight: 500, quoteStyle: 'normal', quoteSpacing: '-0.01em',
+    bodyWeight: 400, bodySpacing: '0',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+  {
+    id: 'cabinet',
+    name: 'Cabinet Grotesk + General Sans',
+    mood: 'Assertive\nHumanist',
+    display: 'Cabinet Grotesk',
+    body: 'General Sans',
+    mono: 'JetBrains Mono',
+    displayStack: "'Cabinet Grotesk', 'Inter', sans-serif",
+    bodyStack: "'General Sans', 'DM Sans', sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 800, titleSpacing: '-0.035em', titleStyle: 'normal',
+    quoteWeight: 400, quoteStyle: 'normal', quoteSpacing: '-0.01em',
+    bodyWeight: 400, bodySpacing: '0',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+  {
+    id: 'libre',
+    name: 'Libre Baskerville + Libre Franklin',
+    mood: 'Newspaper\nScholarly',
+    display: 'Libre Baskerville',
+    body: 'Libre Franklin',
+    mono: 'JetBrains Mono',
+    displayStack: "'Libre Baskerville', Georgia, serif",
+    bodyStack: "'Libre Franklin', 'Inter', sans-serif",
+    monoStack: "'JetBrains Mono', monospace",
+    titleWeight: 700, titleSpacing: '-0.01em', titleStyle: 'normal',
+    quoteWeight: 400, quoteStyle: 'italic', quoteSpacing: '0',
+    bodyWeight: 400, bodySpacing: '0.01em',
+    sampleHeadline: 'Code as a Medium',
+    sampleBody: 'A newfound freedom to express ideas.',
+  },
+];
+
+// ─── BUILD FONT LIST ───────────────────────────────────────────────────────
+const list = document.getElementById('font-list');
+
+FONTS.forEach((f, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'font-btn' + (i === 0 ? ' active' : '');
+  btn.dataset.id = f.id;
+
+  btn.innerHTML = `
+    <div class="font-sample-display" style="font-family: ${f.displayStack}; font-weight: ${f.titleWeight}; font-style: ${f.titleStyle}; letter-spacing: ${f.titleSpacing};">
+      ${f.sampleHeadline}
+    </div>
+    <div class="font-sample-body" style="font-family: ${f.bodyStack}; font-weight: ${f.bodyWeight};">
+      ${f.sampleBody}
+    </div>
+    <div class="font-meta">
+      <span class="font-name">${f.display} · ${f.body}</span>
+      <span class="font-active-tag">active</span>
+      <span class="font-mood">${f.mood.replace('\n', '<br>')}</span>
+    </div>
+  `;
+
+  btn.addEventListener('click', () => applyFont(f));
+  list.appendChild(btn);
+});
+
+// ─── APPLY FONT ────────────────────────────────────────────────────────────
+function applyFont(f) {
+  // Update buttons
+  document.querySelectorAll('.font-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.id === f.id);
+  });
+
+  // ── Slide 1: Title
+  const s1title   = document.getElementById('s1-title');
+  const s1eyebrow = document.getElementById('s1-eyebrow');
+  const s1byline  = document.getElementById('s1-byline');
+
+  s1title.style.fontFamily     = f.displayStack;
+  s1title.style.fontWeight     = f.titleWeight;
+  s1title.style.letterSpacing  = f.titleSpacing;
+  s1title.style.fontStyle      = f.titleStyle;
+
+  s1eyebrow.style.fontFamily   = f.monoStack;
+  s1byline.style.fontFamily    = f.monoStack;
+
+  // ── Slide 2: Quote + body
+  const s2quote = document.getElementById('s2-quote');
+  const s2body  = document.getElementById('s2-body');
+  const s2tag1  = document.getElementById('s2-tag1');
+  const s2tag2  = document.getElementById('s2-tag2');
+  const s2tag3  = document.getElementById('s2-tag3');
+
+  s2quote.style.fontFamily     = f.displayStack;
+  s2quote.style.fontWeight     = f.quoteWeight;
+  s2quote.style.fontStyle      = f.quoteStyle;
+  s2quote.style.letterSpacing  = f.quoteSpacing;
+
+  s2body.style.fontFamily      = f.bodyStack;
+  s2body.style.fontWeight      = f.bodyWeight;
+  s2body.style.letterSpacing   = f.bodySpacing;
+
+  [s2tag1, s2tag2, s2tag3].forEach(t => {
+    t.style.fontFamily = f.monoStack;
+  });
+
+  updatePrompt(f);
+}
+
+// ─── PROMPT ────────────────────────────────────────────────────────────────
+function updatePrompt(f) {
+  const isSerif = f.displayStack.includes('serif');
+  const sameFamily = f.display === f.body;
+
+  let msg = `Update the presentation fonts. `;
+  msg += `Set --font-display to ${f.displayStack} (weight ${f.titleWeight}, spacing ${f.titleSpacing}`;
+  if (f.titleStyle === 'italic') msg += ', italic';
+  msg += `). `;
+  if (sameFamily) {
+    msg += `Use the same family for body text at lighter weight (${f.bodyWeight}).`;
+  } else {
+    msg += `Set --font-body to ${f.bodyStack} (weight ${f.bodyWeight}).`;
+  }
+  msg += ` Quotes${f.quoteStyle === 'italic' ? ' use italic' : ''} at weight ${f.quoteWeight}.`;
+
+  document.getElementById('prompt-text').textContent = msg;
+}
+
+// ─── COPY ──────────────────────────────────────────────────────────────────
+document.getElementById('copy-btn').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('prompt-text').textContent).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('ok'); }, 1600);
+  });
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+applyFont(FONTS[0]);
+</script>
+</body>
+</html>
